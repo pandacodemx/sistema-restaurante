@@ -1,9 +1,9 @@
 <template>
-    <b-navbar class="fondo is-primary">
+    <b-navbar class="bg-fondo">
         <template #brand>
             <b-navbar-item>
                 <img :src="logo" alt="logo">
-                <span class="has-text-weight-bold">{{ datosLocal.nombre }}</span>
+                <span class="has-text-weight-semibold">{{ datosLocal.nombre }}</span>
 
             </b-navbar-item>
         </template>
@@ -15,16 +15,16 @@
                 Inicio
             </b-navbar-item>
 
-            <b-navbar-item tag="router-link" :to="{ path: '/insumos' }">
-                <b-icon icon="food-fork-drink"></b-icon>
-                <span></span>
-                Insumos
-            </b-navbar-item>
-
             <b-navbar-item tag="router-link" :to="{ path: '/realizar-orden' }">
                 <b-icon icon="order-bool-ascending-variant"></b-icon>
                 <span></span>
-                Ordenar
+                Ordenes
+            </b-navbar-item>
+
+            <b-navbar-item tag="router-link" :to="{ path: '/insumos' }">
+                <b-icon icon="food"></b-icon>
+                <span> Insumos</span>
+
             </b-navbar-item>
 
             <b-navbar-item tag="router-link" :to="{ path: '/categorias' }">
@@ -54,14 +54,15 @@
 
         <template #end>
             <b-navbar-item tag="div">
-                <div class="buttons">
+                <div class="buttons ">
+                    <b-button type="is-warning" size="is-normal" icon-left="account" class="is-pulled-right is-rounded"
+                        @click="irAPerfil">
 
-                    <a class="button is-warning" @click="irAPerfil">
-                        {{ nombreUsuario }}
-                    </a>
-                    <a class="button is-light" @click="salir">
-                        Salir
-                    </a>
+                    </b-button>
+                    <b-button type="is-danger" size="is-normal" icon-left="logout" class="is-pulled-right is-rounded"
+                        @click="salir">
+
+                    </b-button>
                 </div>
             </b-navbar-item>
         </template>
@@ -124,3 +125,8 @@ export default ({
     }
 })
 </script>
+<style>
+.bg-fondo {
+    background-color: rgb(241, 241, 241);
+}
+</style>

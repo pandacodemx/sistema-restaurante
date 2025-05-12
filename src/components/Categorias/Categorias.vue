@@ -6,10 +6,11 @@
                 <b-icon icon="archive-outline" size="is-medium" type="is-success">
                 </b-icon>
                 Categorías
-                <b-button type="is-success" icon-left="plus" class="is-rounded has-text-weight-semibold"
+                <b-button type="is-success" icon-left="plus" class="is-rounded has-text-weight-light"
                     @click="abrirModal('registra')">
                     Añadir categoría
                 </b-button>
+
             </p>
             <b-table class="minimal-table mt-5 p-5" :data="categorias" :paginated="isPaginated" :per-page="perPage"
                 :bordered="true" :current-page.sync="currentPage" :pagination-simple="isPaginationSimple"

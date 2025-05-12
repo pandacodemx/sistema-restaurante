@@ -1,30 +1,39 @@
 <template>
   <section>
     <div id="comprobante" class="comprobante">
-      <p>COMPROBANTE DE COMPRA</p>
-      <strong>{{ datosLocal.nombre}}</strong><br />
+      <p>TICKET DE COMPRA</p>
+      <strong>{{ datosLocal.nombre }}</strong><br />
       <img :src="logo" alt="logo">
       <br>
-      <span>Teléfono: {{ datosLocal.telefono }}</span><br />
-      <p>Fecha: {{ venta.fecha }}</p>
+      <span>Fecha: {{ venta.fecha }}</span><br />
+      <span>Teléfono: {{ datosLocal.telefono }}</span>
+      <hr>
       <p>Atiende:{{ venta.atendio }}</p>
       <p>Cliente: {{ venta.cliente }}</p>
+      <br>
       <table>
-        <tr>
-          <td colspan="2">Insumo</td>
-          <td>Subtotal</td>
-        </tr>
-
-        <tr v-for="(insumo, index) in insumos" :key="index">
-          <td>{{ insumo.nombre }}</td>
-          <td>${{ insumo.precio }} x {{ insumo.cantidad }}</td>
-          <td>${{ parseFloat(insumo.cantidad * insumo.precio) }}</td>
-        </tr>
+        <thead>
+          <tr>
+            <th colspan="2">Insumo</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(insumo, index) in insumos" :key="index">
+            <td>{{ insumo.nombre }}</td>
+            <td>${{ insumo.precio }} x {{ insumo.cantidad }}</td>
+            <td>${{ (insumo.precio * insumo.cantidad).toFixed(2) }}</td>
+          </tr>
+        </tbody>
       </table>
-      <strong>TOTAL: ${{ venta.total }}</strong
-      ><br />
-      <strong>SU PAGO: ${{ venta.pagado }}</strong>
-      <strong>CAMBIO: ${{ venta.pagado - venta.total }}</strong>
+      <br>
+      <div class="total-info">
+        <strong>TOTAL: ${{ venta.total }}</strong><br />
+        <small>Pago cliente: ${{ venta.pagado }}</small><br />
+        <small>Cambio: ${{ venta.pagado - venta.total }}</small>
+      </div>
+      <br>
+      <small>¡Gracias por tu preferencia!</small>
     </div>
   </section>
 </template>
@@ -41,7 +50,7 @@ export default {
     cssText: `
       #comprobante{
 			text-align: center;
-			font-family: 'Courier New', monospace;
+			font-family: 'Arial', monospace;
 			font-size: 9px;
       margin: auto 0;
 		}
@@ -73,6 +82,41 @@ export default {
 			
 		  border-collapse: collapse;
 		}
+    hr
+    {
+    width: 50%;
+    }  
+    .datos-atencion
+    {
+    text-align: center;
+    }
+
+    #comprobante > table {
+      width: 70%;
+      font-size: 8px;
+      border-collapse: collapse;
+      margin: 0 auto;
+    }
+
+    #comprobante > table td,
+    #comprobante > table th {
+      border: 1px solid #9b9b9b;
+      padding: 4px;
+      text-align: left;
+    }
+
+    #comprobante > table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+
+    .total-info {
+      margin-top: 5px;
+      text-align: right;
+      padding-right: 15%;
+      font-size: 9px;
+    }
+      
         `,
   }),
 
@@ -105,30 +149,32 @@ export default {
   font-family: "Courier New", monospace;
   font-size: 9px;
 }
-#comprobante > p {
+
+#comprobante>p {
   margin: 0;
 }
 
-#comprobante > span {
+#comprobante>span {
   font-size: 8px;
 }
 
-#comprobante > strong {
+#comprobante>strong {
   font-size: 13px;
   font-weight: bold;
 }
-#comprobante > table,
+
+#comprobante>table,
 td,
 th {
   border: 1px solid black;
 }
 
-#comprobante > img {
+#comprobante>img {
   width: 70px;
   height: 70px;
 }
 
-#comprobante > table {
+#comprobante>table {
   margin-left: auto;
   margin-right: auto;
 

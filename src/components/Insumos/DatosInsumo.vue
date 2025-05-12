@@ -1,50 +1,52 @@
 <template>
-    <section>
-        <ul v-if="errores.length > 0">
-            <li class="has-text-danger has-text-centered" v-for="error in errores" :key="error">{{ error }}</li>
-        </ul>
-        <b-field label="Tipo">
-            <b-select v-model="insumo.tipo" @change.native="obtenerCategorias">
-                <option value="" disabled selected>Selecciona el tipo de insumo</option>
-                <option value="PLATILLO">
-                    Platillo
-                </option>
-                <option value="BEBIDA">
-                    Bebida
-                </option>
-            </b-select>
-        </b-field>
+    <div class="bg-full p-6">
+        <section>
+            <ul v-if="errores.length > 0">
+                <li class="has-text-danger has-text-centered" v-for="error in errores" :key="error">{{ error }}</li>
+            </ul>
+            <b-field label="Tipo">
+                <b-select v-model="insumo.tipo" @change.native="obtenerCategorias">
+                    <option value="" disabled selected>Selecciona el tipo de insumo</option>
+                    <option value="PLATILLO">
+                        Platillo
+                    </option>
+                    <option value="BEBIDA">
+                        Bebida
+                    </option>
+                </b-select>
+            </b-field>
 
-        <b-field label="Código">
-            <b-input type="text" placeholder="Código insumo" v-model="insumo.codigo"></b-input>
-        </b-field>
+            <b-field label="Código">
+                <b-input type="text" placeholder="Código insumo" v-model="insumo.codigo"></b-input>
+            </b-field>
 
-        <b-field label="Nombre">
-            <b-input type="text" placeholder="Nombre" v-model="insumo.nombre"></b-input>
-        </b-field>
+            <b-field label="Nombre">
+                <b-input type="text" placeholder="Nombre" v-model="insumo.nombre"></b-input>
+            </b-field>
 
-        <b-field label="Descripción">
-            <b-input maxlength="200" type="textarea" placeholder="Detalles del insumo"
-                v-model="insumo.descripcion"></b-input>
-        </b-field>
+            <b-field label="Descripción">
+                <b-input maxlength="200" type="textarea" placeholder="Detalles del insumo"
+                    v-model="insumo.descripcion"></b-input>
+            </b-field>
 
-        <b-field label="Categoría">
-            <b-select v-model="insumo.categoria">
-                <option value="" selected disabled>Selecciona una categoría</option>
-                <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
-                    {{ categoria.nombre }}
-                </option>
-            </b-select>
-        </b-field>
+            <b-field label="Categoría">
+                <b-select v-model="insumo.categoria">
+                    <option value="" selected disabled>Selecciona una categoría</option>
+                    <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
+                        {{ categoria.nombre }}
+                    </option>
+                </b-select>
+            </b-field>
 
-        <b-field label="Precio">
-            <b-input type="number" placeholder="Precio de venta" v-model="insumo.precio"></b-input>
-        </b-field>
-        <div class="has-text-centered">
-            <b-button type="is-success is-bold" size="is-large" class="is-rounded" icon-left="check"
-                @click="registrar">Guardar</b-button>
-        </div>
-    </section>
+            <b-field label="Precio">
+                <b-input type="number" placeholder="Precio de venta" v-model="insumo.precio"></b-input>
+            </b-field>
+            <div class="has-text-centered">
+                <b-button type="is-success is-bold" size="is-large" class="is-rounded" icon-left="check"
+                    @click="registrar">Guardar</b-button>
+            </div>
+        </section>
+    </div>
 </template>
 <script>
 import Utiles from '../../Servicios/Utiles'

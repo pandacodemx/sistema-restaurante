@@ -65,13 +65,15 @@
       <b-table-column field="acciones" label="Acciones" v-slot="props">
         <div class="field is-grouped">
           <p class="control">
-            <b-button type="is-primary is-light" icon-left="pen" title="Editar" size="is-small"
+            <b-button type="is-primary is-light" icon-left="clipboard-check" title="Editar" size="is-small"
               @click="editar(props.row.id)">
+              Editar
             </b-button>
           </p>
           <p class="control">
-            <b-button type="is-danger  is-light" icon-left="delete" size="is-small" title="Eliminar"
+            <b-button type="is-danger  is-light" icon-left="delete-circle" size="is-small" title="Eliminar"
               @click="eliminar(props.row)">
+              Eliminar
             </b-button>
           </p>
         </div>
