@@ -1,17 +1,16 @@
 <template>
-  <div id="app">
+  <div id="app" class="app-layout">
     <configuracion-inicial v-if="configurar" />
     <login @logeado="onLog" v-if="!logeado && !configurar"></login>
     <cambiar-password v-if="cambiarPassword"></cambiar-password>
-    <div v-if="logeado && !cambiarPassword">
+    <div v-if="logeado && !cambiarPassword" class="main-content">
       <encabezado @cerrar="onClose" />
-      <div class="container">
+      <div class="container content-wrapper">
         <router-view />
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import Login from './components/Usuarios/Login.vue'
 import CambiarPassword from './components/Usuarios/CambiarPassword.vue'
@@ -93,7 +92,7 @@ body,
   font-family: 'Poppins', sans-serif !important;
   margin: 0;
   padding: 0;
-  background-color: #cccbcb;
+  background-color: #696868;
   color: #fff;
 }
 </style>

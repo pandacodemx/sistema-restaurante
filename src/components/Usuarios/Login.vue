@@ -4,18 +4,25 @@
         <div class="hero-body">
 
             <div class="container">
-                <p class="title is-1 has-text-weight-bold has-text-white has-text-centered titulo">
-                    Sistema para restaurantes o venta de comida <br>
-                    <b-icon icon="account" size="is-large">
-                    </b-icon>
-                    Iniciar sesión
-                </p>
+                <div class="has-text-centered mb-6">
+                    <h1 class="title is-1 has-text-white titulo">
+                        Sistema para restaurantes
+                    </h1>
+                    <p class="subtitle is-3 has-text-light">
+                        Gestión integral de ventas y menú
+                    </p>
+                </div>
                 <div class="columns is-centered">
-                    <div class="column is-5-tablet is-6-desktop is-6-widescreen">
-                        <form action="" class="box">
-                            <img src="@/assets/logo_principal.png" alt="" height="150" width="150"
-                                style="display: block; margin:0 auto;">
-                            <p class="title is-3 has-text-centered"></p>
+                    <div class="column is-5-tablet is-4-desktop">
+                        <form class="box p-6">
+                            <div class="has-text-centered mb-5">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vue.js_Logo_2.svg/2367px-Vue.js_Logo_2.svg.png_.png"
+                                    alt="Logo" width="80">
+                                <h2 class="title is-4 mt-3 has-text-white">
+                                    <b-icon icon="login" class="mr-2"></b-icon>
+                                    Iniciar sesión
+                                </h2>
+                            </div>
                             <b-field>
                                 <b-input placeholder="Correo electrónico" type="email" icon="email" v-model="correo">
                                 </b-input>
@@ -27,15 +34,20 @@
                             </b-field>
 
                             <div class="field has-text-centered">
-                                <b-button icon-left="login" type="is-primary" size="is-large"
+                                <b-button icon-left="login" type="is-primary" class="is-rounded" size="is-medium"
                                     @click="ingresar">Ingresar</b-button>
                             </div>
                         </form>
                     </div>
                 </div>
+                <div class="hero-footer has-text-centered pb-5">
+                    <p class="has-text-light">¿Necesitas ayuda? <a
+                            class="has-text-weight-semibold has-text-white">Contáctanos</a></p>
+                </div>
                 <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>
             </div>
         </div>
+
     </section>
 </template>
 <script>
@@ -106,23 +118,74 @@ export default {
 }
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css?family=Amaranth');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 .fondo {
-    background-color: #8c5b00;
-    background-attachment: fixed;
-    background-size: contain;
-    color: white;
+    background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
 }
 
+.fondo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    /* Ajusta la opacidad aquí */
+}
+
+.hero-body {
+    position: relative;
+    /* Para que el contenido aparezca sobre el overlay */
+}
+
+.box {
+    background: rgba(255, 255, 255, 0.582);
+    backdrop-filter: blur(5px);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: none;
+}
+
+.box:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.b-input {
+    border-radius: 8px;
+    border: 1px solid #e1e1e1;
+    transition: all 0.3s;
+}
+
+.b-input:hover,
+.b-input:focus {
+    border-color: #8c5b00;
+    box-shadow: 0 0 0 0.125em rgba(140, 91, 0, 0.25);
+}
+
+.button.is-primary {
+    background-color: #8c5b00;
+    border: none;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    padding: 1.5em 2em;
+}
+
+.button.is-primary:hover {
+    background-color: #a56a00;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(140, 91, 0, 0.4);
+}
 
 .titulo {
-    font-family: Amaranth, sans-serif;
-    text-align: center;
-    font-size: 75px;
-    letter-spacing: 2px;
-    word-spacing: 3px;
-    color: rgb(245, 251, 255);
-    text-shadow: rgb(0, 0, 0) -4px 2px 2px;
+    font-family: 'Playfair Display', serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
 }
 </style>

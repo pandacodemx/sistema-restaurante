@@ -1,11 +1,10 @@
 // Cambiar colores principales
-$primary: #00d1b2; // verde agua predeterminado de Bulma/Buefy
-$danger: #7e38ff;  // rojo
+$primary: #21a181; 
+$danger: #851717;  // rojo
 
-// Puedes cambiar más variables Bulma aquí
 $info: #209cee;
-$success: #bd1531;
-$warning: #ffdd57;
+$success: #1b7686;
+$warning: #ffc457;
 // Luego importa Bulma y Buefy
 @import "~bulma/bulma";
 @import "~buefy/src/scss/buefy";

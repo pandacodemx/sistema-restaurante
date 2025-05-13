@@ -33,6 +33,18 @@ const HttpService = {
     let resultado = await respuesta.json();
     return resultado;
   },
+
+  registrarFormData(formData, endpoint) {
+    return fetch(`api/${endpoint}`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .catch((err) => {
+        console.error(err);
+        return false;
+      });
+  },
 };
 
 export default HttpService;

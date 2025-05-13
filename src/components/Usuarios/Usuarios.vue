@@ -84,10 +84,10 @@ export default {
     methods: {
         eliminar(usuario) {
             this.$buefy.dialog.confirm({
-                title: 'Eliminar el usuario ' + usuario.nombre,
-                message: '¿Seguro que deseas eliminar el usuario? Esta acción no se puede deshacer',
-                confirmText: 'Sí, eliminar',
-                cancelText: 'No, salir',
+                title: 'Eliminar ' + usuario.nombre,
+                message: '<div class="content"><p><strong>¡Atención!</strong></p><p class="has-text-danger">¿Seguro que deseas eliminar el usuario <p class="has-text-danger">Esta acción no se puede deshacer.</p></div>',
+                confirmText: 'Eliminar',
+                cancelText: 'Cancelar',
                 type: 'is-danger',
                 hasIcon: true,
                 onConfirm: () => {
@@ -102,7 +102,6 @@ export default {
                 }
             })
         },
-
         editar(idUsuario) {
             this.$router.push({
                 name: "EditarUsuario",

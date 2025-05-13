@@ -241,11 +241,13 @@ export default ({
             this.$buefy.dialog.prompt({
                 title: `Cobro mesa #` + mesa.mesa.idMesa,
                 message: '<div class="content"><p><strong>¡Atención!</strong></p> <p class="has-text-danger has-text-weight-bold">El total a pagar $ ' + mesa.mesa.total + ' </p></div> ',
+
                 inputAttrs: {
                     type: 'number',
                     value: "",
                     placeholder: 'Cantidad recibida',
-                    min: 1
+                    min: 1,
+                    confirmText: 'Aceptar'
                 },
                 trapFocus: true,
                 onConfirm: (value) => {
@@ -276,7 +278,7 @@ export default ({
                                 this.$buefy.dialog.alert({
                                     title: 'Venta finalizada',
                                     message: '<div class="content"><p><strong>¡Mesa cerrada!</strong></p> <p class="has-text-danger has-text-weight-bold">Cambio a entregar <b>$' + cambio + '</b> </p></div>',
-                                    confirmText: 'OK'
+                                    confirmText: 'Terminar'
                                 })
                                 this.imprimirComprobante(payload)
                                 this.crearMesas()
@@ -307,6 +309,14 @@ export default ({
 })
 </script>
 <style>
+.bg-full {
+    background-color: #f0efef;
+    border-radius: 12px;
+    min-height: 100dvh;
+    padding: 20px;
+    margin-top: 10px;
+}
+
 .minimal-table {
     background: white;
     border-radius: 12px;
