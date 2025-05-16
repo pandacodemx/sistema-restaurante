@@ -2,40 +2,12 @@
     <div class="bg-full p-6">
         <section>
             <br>
-            <div class="tile is-ancestor">
-                <div class="tile is-parent" v-for="(carta, index) in cartas" :key="index">
-                    <div class="card is-card-widget tile is-child">
-                        <div class="card-header">
-                            <div class="card-header-title">
-                                <span class="is-pulled-right">
-                                    <b-button tag="router-link" :to="{ path: carta.ruta }">
-                                        <b-icon icon="plus-circle" size="is-small"></b-icon>
-                                    </b-button>
-                                </span>
 
-                                <small>{{ carta.encabezado }}</small>
-
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="level is-desktop">
-                                <div class="level-item">
-                                    <div class="is-widget-label">
-                                        <h3 class="title">{{ carta.total }}</h3>
-                                    </div>
-                                </div>
-                                <div class="level-item has-widget-icon">
-                                    <div class="is-widget-icon">
-                                        <span class="icon is-large" :class="carta.colorTexto">
-                                            <b-icon :icon="carta.icono" size="is-large"></b-icon>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="welcome">
+                <h1>Bienvenido! <b>{{ nombreUsuario }}</b> </h1>
+                <small>Sistema para restaurantes V1.0 </small>
             </div>
+
             <div class="columns is-multiline">
                 <div class="column is-one-third">
                     <div class="box">
@@ -192,6 +164,9 @@ export default ({
     name: "Inicio",
 
     data: () => ({
+        datosLocal: {},
+        nombreUsuario: '',
+        logo: null,
         ventasSemana: [],
         ventasHora: [],
         ventasMeses: [],
@@ -222,9 +197,18 @@ export default ({
         this.filtros.limite = this.limiteSeleccionado
         this.obtenerDatos()
         this.llenarListaAnios()
+        this.nombreUsuario = localStorage.getItem('nombreUsuario') || 'Usuario'
+        this.obtenerDatos()
     },
 
     methods: {
+        obtenerDatos() {
+            HttpService.obtener("obtener_datos_local.php")
+                .then(resultado => {
+                    this.datosLocal = resultado
+                    this.logo = Utiles.generarUrlImagen(this.datosLocal.logo)
+                })
+        },
 
         calcularProgreso(arreglo) {
 
@@ -351,5 +335,19 @@ export default ({
     min-height: 100dvh;
     padding: 20px;
     margin-top: 10px;
+}
+
+.welcome {
+    background-color: rgb(255, 255, 255);
+    padding: 10px;
+    color: rgb(61, 61, 61);
+    font-size: 25px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+small {
+    font-size: 15px;
 }
 </style>

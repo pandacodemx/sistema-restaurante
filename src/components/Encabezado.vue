@@ -1,63 +1,64 @@
 <template>
-    <b-navbar class="bg-fondo" type="is-light">
-        <!-- Marca / Logo -->
+    <b-navbar class="bg-fondo" type="is-light" :mobile-breakpoint="768" :active.sync="isNavActive">
+        <!-- Logo / Marca -->
         <template #brand>
             <b-navbar-item>
                 <img :src="logo" alt="logo" class="mr-2" style="max-height: 40px;">
                 <span class="has-text-weight-semibold">{{ datosLocal.nombre }}</span>
             </b-navbar-item>
+
+            <!-- Botón hamburguesa -->
+            <b-navbar-burger @click="isNavActive = !isNavActive" :active="isNavActive"></b-navbar-burger>
         </template>
 
-        <!-- Menú principal centrado -->
+        <!-- Menú principal -->
         <template #start>
-            <div class="navbar-center">
-                <b-navbar-item tag="router-link" to="/" class="icon-item">
-                    <b-icon icon="home"></b-icon>
-                    <span class="nav-text">Inicio</span>
-                </b-navbar-item>
+            <b-navbar-item tag="router-link" to="/" class="icon-item">
+                <b-icon icon="home"></b-icon>
+                <span class="nav-text">Inicio</span>
+            </b-navbar-item>
 
-                <b-navbar-item tag="router-link" to="/realizar-orden" class="icon-item">
-                    <b-icon icon="monitor-multiple"></b-icon>
-                    <span class="nav-text">Ordenes</span>
-                </b-navbar-item>
+            <b-navbar-item tag="router-link" to="/realizar-orden" class="icon-item">
+                <b-icon icon="monitor-multiple"></b-icon>
+                <span class="nav-text">Ordenes</span>
+            </b-navbar-item>
 
-                <b-navbar-item tag="router-link" to="/insumos" class="icon-item">
-                    <b-icon icon="food"></b-icon>
-                    <span class="nav-text">Insumos</span>
-                </b-navbar-item>
+            <b-navbar-item tag="router-link" to="/insumos" class="icon-item">
+                <b-icon icon="food"></b-icon>
+                <span class="nav-text">Insumos</span>
+            </b-navbar-item>
 
-                <b-navbar-item tag="router-link" to="/categorias" class="icon-item">
-                    <b-icon icon="archive-outline"></b-icon>
-                    <span class="nav-text">Categorías</span>
-                </b-navbar-item>
+            <b-navbar-item tag="router-link" to="/categorias" class="icon-item">
+                <b-icon icon="archive-outline"></b-icon>
+                <span class="nav-text">Categorías</span>
+            </b-navbar-item>
 
-                <b-navbar-item tag="router-link" to="/usuarios" class="icon-item">
-                    <b-icon icon="account-multiple"></b-icon>
-                    <span class="nav-text">Usuarios</span>
-                </b-navbar-item>
+            <b-navbar-item tag="router-link" to="/usuarios" class="icon-item">
+                <b-icon icon="account-multiple"></b-icon>
+                <span class="nav-text">Usuarios</span>
+            </b-navbar-item>
 
-                <b-navbar-item tag="router-link" to="/reporte-ventas" class="icon-item">
-                    <b-icon icon="cash-register"></b-icon>
-                    <span class="nav-text">Ventas</span>
-                </b-navbar-item>
+            <b-navbar-item tag="router-link" to="/reporte-ventas" class="icon-item">
+                <b-icon icon="cash-register"></b-icon>
+                <span class="nav-text">Ventas</span>
+            </b-navbar-item>
 
-                <b-navbar-item tag="router-link" to="/configurar" class="icon-item">
-                    <b-icon icon="brightness-7"></b-icon>
-                    <span class="nav-text">Configuración</span>
-                </b-navbar-item>
-            </div>
+            <b-navbar-item tag="router-link" to="/configurar" class="icon-item">
+                <b-icon icon="brightness-7"></b-icon>
+                <span class="nav-text">Configuración</span>
+            </b-navbar-item>
         </template>
 
         <!-- Usuario / Botones -->
         <template #end>
             <b-navbar-item>
-                <div class="buttons">
-                    <b-button type="is-warning" size="is-small" icon-left="account" class="is-rounded"
+                <div class="buttons is-flex is-flex-wrap-wrap">
+                    <b-button type="is-warning" size="is-small" icon-left="account" class="is-rounded mb-2"
                         @click="irAPerfil" title="Perfil">
                         {{ nombreUsuario }}
                     </b-button>
-                    <b-button type="is-danger" size="is-small" icon-left="logout" class="is-rounded ml-2" @click="salir"
-                        title="Cerrar sesión">
+                    <b-button type="is-danger" size="is-small" icon-left="logout" class="is-rounded ml-2 mb-2"
+                        @click="salir" title="Cerrar sesión">
                         Salir
                     </b-button>
                 </div>
@@ -65,6 +66,7 @@
         </template>
     </b-navbar>
 </template>
+
 
 <script>
 import HttpService from '../Servicios/HttpService'
@@ -75,7 +77,8 @@ export default {
     data: () => ({
         datosLocal: {},
         nombreUsuario: '',
-        logo: null
+        logo: null,
+        isNavActive: false
     }),
 
     mounted() {
@@ -124,9 +127,10 @@ export default {
 /* Centrado del menú */
 .navbar-center {
     display: flex;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: auto;
 }
 
 /* Estilo para los items del menú */
@@ -175,5 +179,28 @@ export default {
 .b-navbar-item:hover {
     background-color: rgba(0, 0, 0, 0.03);
     border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+    .buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .icon-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 0.75rem;
+    }
+
+    .nav-text {
+        opacity: 1;
+        position: static;
+        margin-left: 0.5rem;
+    }
+
+    .icon-item .icon {
+        font-size: 1.1rem;
+    }
 }
 </style>

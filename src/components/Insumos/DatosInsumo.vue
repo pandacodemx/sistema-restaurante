@@ -41,6 +41,12 @@
             <b-field label="Precio">
                 <b-input type="number" placeholder="Precio de venta" v-model="insumo.precio"></b-input>
             </b-field>
+
+            <b-field label="Imagen del insumo">
+                <input type="file" @change="onImagenSeleccionada" />
+                <!-- Imagen actual previa -->
+                <img v-if="insumo.imagen" :src="obtenerRutaImagen(insumo.imagen)" width="100" />
+            </b-field>
             <div class="has-text-centered">
                 <b-button type="is-success is-bold" size="is-large" class="is-rounded" icon-left="check"
                     @click="registrar">Guardar</b-button>
@@ -58,12 +64,19 @@ export default {
 
     data: () => ({
         errores: [],
-        categorias: []
+        categorias: [],
+        imagen: null
     }),
 
 
 
     methods: {
+        onImagenSeleccionada(event) {
+            this.nuevaImagen = event.target.files[0];
+        },
+        obtenerRutaImagen(ruta) {
+        return `http://localhost/sistema-restaurante/api/${ruta}`;
+        },
         registrar() {
             let datos = {
                 tipo: this.insumo.tipo,
@@ -75,7 +88,18 @@ export default {
             }
             this.errores = Utiles.validar(datos)
             if (this.errores.length > 0) return
-            this.$emit("registrado", this.insumo)
+
+            // FormData para subir la imagen
+            const formData = new FormData()
+            for (let key in datos) {
+                formData.append(key, datos[key])
+            }
+
+            if (this.imagen) {
+                formData.append('imagen', this.imagen)
+            }
+
+            this.$emit("registrado", formData)
         },
 
         obtenerCategorias() {
@@ -84,7 +108,10 @@ export default {
                 .then(resultado => {
                     this.categorias = resultado
                 })
-
+        },
+        onFileChange(event) {
+            const file = event.target.files[0]
+            this.imagen = file
         }
     }
 }

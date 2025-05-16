@@ -22,36 +22,6 @@
           </p>
         </div>
       </nav>
-
-      <div class="field is-grouped">
-        <p class="control">
-          <b-button class="mb-1" @click="recargar">
-            <b-icon icon="refresh"></b-icon>
-          </b-button>
-        </p>
-        <p class="control">
-          <b-button type="is-success" icon-left="filter-variant" @click="filtrar = !filtrar">Filtrar</b-button>
-        </p>
-      </div>
-      <div class="box" v-if="filtrar">
-        <b-field grouped group-multiline>
-          <b-field label="Selecciona un periodo de tiempo" expanded>
-            <b-datepicker placeholder="Click para seleccionar..." v-model="fechasSeleccionadas" @input="buscarEnFecha"
-              icon="calendar-today" range>
-            </b-datepicker>
-          </b-field>
-
-          <b-field label="Ventas por usuario" expanded>
-            <b-select v-model="usuarioSeleccionado" @change.native="buscarEnFecha">
-              <option value="" selected disabled>Selecciona</option>
-              <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
-                {{ usuario.nombre }}
-              </option>
-            </b-select>
-          </b-field>
-        </b-field>
-      </div>
-
       <div class="box">
         <p class="title is-4 has-text-weight-light has-text-grey">
           Totales de ventas por usuario
@@ -143,6 +113,35 @@
         </b-select>
       </p>
     </div>
+    <div class="field is-grouped">
+      <p class="control">
+        <b-button class="mb-1" @click="recargar">
+          <b-icon icon="refresh"></b-icon>
+        </b-button>
+      </p>
+      <p class="control">
+        <b-button type="is-success" icon-left="filter-variant" @click="filtrar = !filtrar">Filtrar</b-button>
+      </p>
+    </div>
+    <div class="box" v-if="filtrar">
+      <b-field grouped group-multiline>
+        <b-field label="Selecciona un periodo de tiempo" expanded>
+          <b-datepicker placeholder="Click para seleccionar..." v-model="fechasSeleccionadas" @input="buscarEnFecha"
+            icon="calendar-today" range>
+          </b-datepicker>
+        </b-field>
+
+        <b-field label="Ventas por usuario" expanded>
+          <b-select v-model="usuarioSeleccionado" @change.native="buscarEnFecha">
+            <option value="" selected disabled>Selecciona</option>
+            <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">
+              {{ usuario.nombre }}
+            </option>
+          </b-select>
+        </b-field>
+      </b-field>
+    </div>
+
   </div>
 </template>
 <script>

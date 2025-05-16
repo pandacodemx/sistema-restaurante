@@ -6,21 +6,14 @@
       <section class="hero is-hero-bar is-main-hero">
         <div class="hero-body">
           <div class="level">
-            <div class="level-left">
-              <div class="level-item is-hero-avatar-item">
-                <div class="image is-user-avatar">
-                  <img src="../../assets/usuario.png" alt="" />
-                </div>
-              </div>
-            </div>
-            <div class="level-item is-hero-content-item">
+            <div class="level-left is-hero-content-item">
               <div>
                 <h1 class="title is-spaced">Perfil: {{ nombreUsuario }}</h1>
               </div>
             </div>
             <div class="level-right">
               <div class="level-item">
-                <b-button type="is-primary" size="is-medium" icon-left="lock-open" class="is-pulled-right is-rounded"
+                <b-button type="is-primary" size="is-small" icon-left="lock-open" class="is-pulled-right is-rounded"
                   tag="router-link" to="/cambiar-password">
                   Cambiar contraseña
                 </b-button>
@@ -217,7 +210,8 @@ export default {
 </script>
 <style>
 section.hero.is-hero-bar.is-main-hero {
-  background-image: url("../../assets/fondo.png");
+  background-color: rgb(218, 217, 217);
+  border-radius: 10px;
   background-size: cover;
 }
 

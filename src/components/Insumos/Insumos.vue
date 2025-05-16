@@ -46,6 +46,12 @@
         {{ props.row.codigo }}
       </b-table-column>
 
+      <b-table-column field="imagen" label="Imagen" v-slot="props">
+        <figure class="image is-64x64">
+          <img :src="obtenerRutaImagen(props.row.imagen)" alt="Imagen de insumo" />
+        </figure>
+      </b-table-column>
+
       <b-table-column field="nombre" label="Nombre" searchable sortable v-slot="props">
         {{ props.row.nombre }}
       </b-table-column>
@@ -152,6 +158,9 @@ export default {
   },
 
   methods: {
+    obtenerRutaImagen(ruta) {
+    return `http://localhost/sistema-restaurante/api/${ruta}`;
+    },
     busquedaAvanzada() {
       if (this.filtros.tipo === "BEBIDA" || this.filtros.tipo === "PLATILLO") {
         this.obtenerCategorias();
@@ -275,7 +284,7 @@ export default {
 .minimal-table th {
   background-color: #e6e6e6;
   font-weight: 600;
-  color: #4a4a4a;
+  color: #a7a7a7;
   border: none;
 }
 

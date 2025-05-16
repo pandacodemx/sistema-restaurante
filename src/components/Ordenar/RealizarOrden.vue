@@ -81,32 +81,45 @@
                         </b-collapse>
                         <br>
                         <div class="has-text-centered">
-                            <b-button type="is-primary" class="is-rounded" icon-left="book" @click="ocuparMesa(mesa)"
-                                v-if="mesa.mesa.estado === 'libre'">Seleccionar</b-button>
-                            <div class="field is-grouped is-centered" v-if="mesa.mesa.estado === 'ocupada'">
+                            <!-- Botón cuando la mesa está libre -->
+                            <b-button type="is-primary" class="is-rounded is-fullwidth-mobile" icon-left="book"
+                                @click="ocuparMesa(mesa)" v-if="mesa.mesa.estado === 'libre'">
+                                Seleccionar
+                            </b-button>
 
+                            <!-- Botones cuando la mesa está ocupada -->
+                            <div class="field is-grouped is-grouped-multiline is-justified-center botones-mesa"
+                                v-if="mesa.mesa.estado === 'ocupada'">
                                 <p class="control">
-                                    <b-button type="is-info" class="is-rounded" icon-left="cart-plus"
-                                        @click="ocuparMesa(mesa)">Agregar
-                                        insumos</b-button>
+                                    <b-button type="is-info" class="is-rounded is-fullwidth-mobile"
+                                        icon-left="cart-plus" @click="ocuparMesa(mesa)">
+                                        Agregar insumos
+                                    </b-button>
                                 </p>
 
                                 <p class="control">
-                                    <b-button type="is-success" class="is-rounded" icon-left="cash-multiple"
-                                        @click="cobrar(mesa)">Cobrar</b-button>
+                                    <b-button type="is-success" class="is-rounded is-fullwidth-mobile"
+                                        icon-left="cash-multiple" @click="cobrar(mesa)">
+                                        Cobrar
+                                    </b-button>
+                                </p>
+
+                                <p class="control" v-if="checkedRows.length > 0">
+                                    <b-button type="is-warning" class="is-rounded is-fullwidth-mobile"
+                                        icon-left="checkbox-marked" @click="marcarInsumosEntregados(mesa)">
+                                        Entregado
+                                    </b-button>
                                 </p>
 
                                 <p class="control">
-                                    <b-button type="is-warning" class="is-rounded" icon-left="checkbox-marked"
-                                        v-if="checkedRows.length > 0"
-                                        @click="marcarInsumosEntregados(mesa)">Entregado</b-button>
-                                </p>
-                                <p class="control">
-                                    <b-button type="is-danger" class="is-rounded" icon-left="close-box"
-                                        @click="cancelarOrden(mesa.mesa.idMesa)">Cancelar</b-button>
+                                    <b-button type="is-danger" class="is-rounded is-fullwidth-mobile"
+                                        icon-left="close-box" @click="cancelarOrden(mesa.mesa.idMesa)">
+                                        Cancelar
+                                    </b-button>
                                 </p>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>

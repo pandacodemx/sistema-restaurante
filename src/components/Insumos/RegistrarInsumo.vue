@@ -35,10 +35,9 @@ export default {
     }),
 
     methods: {
-        onRegistrado(registro) {
-            this.insumo = registro
+        onRegistrado(formData) {
             this.cargando = true
-            HttpService.registrar(this.insumo, "registrar_insumo.php")
+            HttpService.registrar(formData, "registrar_insumo.php", true)
                 .then(registrado => {
                     if (registrado) {
                         this.insumo = {
