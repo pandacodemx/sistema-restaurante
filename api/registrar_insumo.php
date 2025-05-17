@@ -37,5 +37,5 @@ $insumo = (object)[
     'imagen' => $imagen // puedes guardarla si actualizas la base
 ];
 
-$resultado = registrarInsumo($insumo);
+$resultado = registrarInsumoP($insumo);
 echo json_encode($resultado);

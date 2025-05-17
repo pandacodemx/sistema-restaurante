@@ -458,8 +458,8 @@ function eliminarInsumo($idInsumo)
 function editarInsumo($insumo)
 {
 	$bd = conectarBaseDatos();
-	$sentencia = $bd->prepare("UPDATE insumos SET tipo = ?, codigo = ?, nombre = ?, descripcion = ?, categoria = ?, precio = ?, imagen=? WHERE id = ?");
-	return $sentencia->execute([$insumo->tipo, $insumo->codigo, $insumo->nombre, $insumo->descripcion, $insumo->categoria, $insumo->precio, $insumo->imagen, $insumo->id]);
+	$sentencia = $bd->prepare("UPDATE insumos SET tipo = ?, codigo = ?, nombre = ?, descripcion = ?, categoria = ?, precio = ? WHERE id = ?");
+	return $sentencia->execute([$insumo->tipo, $insumo->codigo, $insumo->nombre, $insumo->descripcion, $insumo->categoria, $insumo->precio, $insumo->id]);
 }
 
 function obtenerInsumoPorId($idInsumo)
@@ -498,8 +498,14 @@ function obtenerInsumos($filtros)
 	$sentencia->execute($valoresAEjecutar);
 	return $sentencia->fetchAll();
 }
-
 function registrarInsumo($insumo)
+{
+	$bd = conectarBaseDatos();
+	$sentencia = $bd->prepare("INSERT INTO insumos (codigo, nombre, descripcion, precio, tipo,  categoria) VALUES (?,?,?,?,?,?)");
+	return $sentencia->execute([$insumo->codigo, $insumo->nombre, $insumo->descripcion, $insumo->precio, $insumo->tipo, $insumo->categoria]);
+}
+
+function registrarInsumoP($insumo)
 {
     $bd = conectarBaseDatos();
     $sentencia = $bd->prepare("INSERT INTO insumos (codigo, nombre, descripcion, precio, tipo, categoria, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)");

@@ -36,26 +36,26 @@ export default {
 
     methods: {
         onRegistrado(formData) {
-            this.cargando = true
-            HttpService.registrar(formData, "registrar_insumo.php", true)
-                .then(registrado => {
-                    if (registrado) {
-                        this.insumo = {
-                            tipo: "",
-                            codigo: "",
-                            nombre: "",
-                            descripcion: "",
-                            categoria: "",
-                            precio: ""
-                        }
-                        this.$buefy.toast.open({
-                            message: 'Insumo registrado',
-                            type: 'is-success'
-                        })
-                        this.cargando = false
+        this.cargando = true
+        HttpService.registrarP(formData, "registrar_insumo.php", true)
+            .then(registrado => {
+                if (registrado) {
+                    this.insumo = {
+                        tipo: "",
+                        codigo: "",
+                        nombre: "",
+                        descripcion: "",
+                        categoria: "",
+                        precio: ""
                     }
-                })
-        }
+                    this.$buefy.toast.open({
+                        message: 'Insumo registrado',
+                        type: 'is-success'
+                    })
+                    this.cargando = false
+                }
+            })
+    }
     }
 
 }

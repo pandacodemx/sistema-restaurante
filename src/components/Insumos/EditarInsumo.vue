@@ -39,7 +39,7 @@ export default ({
         onRegistrado(insumo) {
             this.insumo = insumo
             this.cargando = true
-            HttpService.registrar(this.insumo, "editar_insumo.php")
+            HttpService.registrarP(this.insumo, "editar_insumo.php")
                 .then(editado => {
                     if (editado) {
                         this.$buefy.toast.open({

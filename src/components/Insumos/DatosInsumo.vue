@@ -38,14 +38,13 @@
                 </b-select>
             </b-field>
 
+            <b-field label="Imagen del insumo">
+                <input type="file" @change="onFileChange" accept="image/*" />
+            </b-field>
+            
+
             <b-field label="Precio">
                 <b-input type="number" placeholder="Precio de venta" v-model="insumo.precio"></b-input>
-            </b-field>
-
-            <b-field label="Imagen del insumo">
-                <input type="file" @change="onImagenSeleccionada" />
-                <!-- Imagen actual previa -->
-                <img v-if="insumo.imagen" :src="obtenerRutaImagen(insumo.imagen)" width="100" />
             </b-field>
             <div class="has-text-centered">
                 <b-button type="is-success is-bold" size="is-large" class="is-rounded" icon-left="check"
@@ -71,11 +70,10 @@ export default {
 
 
     methods: {
-        onImagenSeleccionada(event) {
-            this.nuevaImagen = event.target.files[0];
-        },
-        obtenerRutaImagen(ruta) {
-        return `http://localhost/sistema-restaurante/api/${ruta}`;
+
+        onFileChange(event) {
+            const file = event.target.files[0]
+            this.imagen = file
         },
         registrar() {
             let datos = {
@@ -108,10 +106,7 @@ export default {
                 .then(resultado => {
                     this.categorias = resultado
                 })
-        },
-        onFileChange(event) {
-            const file = event.target.files[0]
-            this.imagen = file
+
         }
     }
 }

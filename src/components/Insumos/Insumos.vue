@@ -47,7 +47,7 @@
       </b-table-column>
 
       <b-table-column field="imagen" label="Imagen" v-slot="props">
-        <figure class="image is-64x64">
+        <figure class="image is-64x64" @click="expandirImagen(props.row.imagen)" style="cursor: pointer;">
           <img :src="obtenerRutaImagen(props.row.imagen)" alt="Imagen de insumo" />
         </figure>
       </b-table-column>
@@ -85,6 +85,12 @@
         </div>
       </b-table-column>
     </b-table>
+
+    <b-modal :active.sync="mostrarModalImagen" :can-cancel="['escape', 'outside']" scroll="keep">
+      <div class="has-text-centered">
+        <img :src="imagenExpandida" alt="Imagen expandida" style="max-width: 100%; max-height: 80vh;" />
+      </div>
+    </b-modal>
 
 
     <div class="field is-grouped box is-shadowless custom-box">
@@ -138,7 +144,7 @@ export default {
     filtros: {
       tipo: "",
       categoria: "",
-      nombre: "",
+      nombre: "",      
     },
     categorias: [],
     cargando: false,
@@ -151,6 +157,9 @@ export default {
     sortIconSize: "is-small",
     currentPage: 1,
     perPage: 20,
+    imagenExpandida: null, 
+    mostrarModalImagen: false,
+    
   }),
 
   mounted() {
@@ -158,6 +167,10 @@ export default {
   },
 
   methods: {
+    expandirImagen(ruta) {
+    this.imagenExpandida = this.obtenerRutaImagen(ruta);
+    this.mostrarModalImagen = true;
+    },
     obtenerRutaImagen(ruta) {
     return `http://localhost/sistema-restaurante/api/${ruta}`;
     },
