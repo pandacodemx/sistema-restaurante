@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-05-2025 a las 22:46:58
+-- Tiempo de generación: 27-05-2025 a las 23:17:09
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -41,7 +41,11 @@ CREATE TABLE `categorias` (
 INSERT INTO `categorias` (`id`, `tipo`, `nombre`, `descripcion`) VALUES
 (1, 'BEBIDA', 'Refresco', 'Refresco'),
 (2, 'PLATILLO', 'Hamburguesas', 'Multiples Hamburguesas'),
-(3, 'PLATILLO', 'Pastas ', 'Todo tipo de pastas ');
+(3, 'PLATILLO', 'Pastas ', 'Todo tipo de pastas '),
+(4, 'BEBIDA', 'Cafe', 'Distintos tipos de café'),
+(5, 'BEBIDA', 'Cerveza ', 'Diferentes tipos de cerveza '),
+(6, 'PLATILLO', 'Baguette', 'Distintos tipos de baguette'),
+(7, 'BEBIDA', 'Frappes', 'Diferentes sabores');
 
 -- --------------------------------------------------------
 
@@ -61,7 +65,7 @@ CREATE TABLE `informacion_negocio` (
 --
 
 INSERT INTO `informacion_negocio` (`nombre`, `telefono`, `numeroMesas`, `logo`) VALUES
-('Maya´s Restaurant ', '123456', 5, './fotos/6822280bc6152.png');
+('Vue´s Restaurante', '123456', 5, './fotos/6822280bc6152.png');
 
 -- --------------------------------------------------------
 
@@ -76,19 +80,26 @@ CREATE TABLE `insumos` (
   `descripcion` varchar(255) NOT NULL,
   `precio` decimal(6,2) NOT NULL,
   `tipo` enum('PLATILLO','BEBIDA') NOT NULL,
-  `categoria` bigint(20) UNSIGNED NOT NULL
+  `categoria` bigint(20) UNSIGNED NOT NULL,
+  `imagen` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `insumos`
 --
 
-INSERT INTO `insumos` (`id`, `codigo`, `nombre`, `descripcion`, `precio`, `tipo`, `categoria`) VALUES
-(1, 'COCA600', 'Coca Cola 600ML', 'Refresco Coca Cola de 600ML', 25.00, 'BEBIDA', 1),
-(2, 'CIEL600', 'Agua Ciel 600ML', 'Agua Ciel de  600ML ', 15.00, 'BEBIDA', 1),
-(3, 'HBAME', 'Hamburguesa Americana ', 'Queso, Cebolla, Tocino', 80.00, 'PLATILLO', 2),
-(4, 'PASMA', 'Pasta Mar y Tierra ', 'Pasta con camarones y pollo a la plancha', 95.00, 'PLATILLO', 3),
-(5, 'CCOR', 'Cerveza Corona 410ml', 'Cerveza Corona, ampolleta ', 25.00, 'BEBIDA', 1);
+INSERT INTO `insumos` (`id`, `codigo`, `nombre`, `descripcion`, `precio`, `tipo`, `categoria`, `imagen`) VALUES
+(1, 'COCA600', 'Coca Cola 600ML', 'Refresco Coca Cola de 600ML', 25.00, 'BEBIDA', 1, ''),
+(2, 'CIEL600', 'Agua Ciel 600ML', 'Agua Ciel de  600ML ', 15.00, 'BEBIDA', 1, ''),
+(3, 'HBAME', 'Hamburguesa Americana ', 'Queso, Cebolla, Tocino', 80.00, 'PLATILLO', 2, ''),
+(4, 'PASMA', 'Pasta Mar y Tierra ', 'Pasta con camarones y pollo a la plancha', 95.00, 'PLATILLO', 3, ''),
+(5, 'CCOR', 'Cerveza Corona 410ml', 'Cerveza Corona, ampolleta ', 25.00, 'BEBIDA', 5, ''),
+(6, 'CAFAM', 'Café Americano Taza Pequeña', 'Taza Pequeña', 25.00, 'BEBIDA', 4, ''),
+(7, 'CETEC', 'Cerveza Tecate Roja 410ml', 'Cerveza tecate lata ', 25.00, 'BEBIDA', 5, ''),
+(8, 'BAGAR', 'Baguette Arrachera', 'Incluye guacamole, chorizo, tocino', 85.00, 'PLATILLO', 6, ''),
+(9, 'CERMOD', 'Cerveza Modelo Vidrio', 'Cerveza Modelo Ambar', 45.00, 'BEBIDA', 5, 'imagenes_insumos/6827af46d7c6d_6a94fa4e216d2bea950450a18b78066a.jpg'),
+(10, 'PASCAR', 'Pasta Carbonara ', 'Pasta Carbonara ', 150.00, 'PLATILLO', 3, 'imagenes_insumos/6828c0f12fb28_carbonara-horizontal-threeByTwoMediumAt2X-v2.jpg'),
+(11, 'CERHEIN', 'Cerveza Heineken', 'Envase de vidrio', 30.00, 'BEBIDA', 5, 'imagenes_insumos/6828d11f30f87_7501049999278_2_03032023_e3a10527-4031-40d8-8ea4-2cff85fb38f5.png');
 
 -- --------------------------------------------------------
 
@@ -138,7 +149,25 @@ INSERT INTO `insumos_venta` (`id`, `idInsumo`, `precio`, `cantidad`, `idVenta`) 
 (27, 3, 80.00, 1, 15),
 (28, 1, 25.00, 1, 15),
 (29, 4, 95.00, 1, 16),
-(30, 5, 25.00, 1, 17);
+(30, 5, 25.00, 1, 17),
+(31, 3, 80.00, 1, 18),
+(32, 4, 95.00, 1, 18),
+(33, 1, 25.00, 1, 18),
+(34, 8, 85.00, 1, 19),
+(35, 3, 80.00, 1, 19),
+(36, 7, 25.00, 1, 19),
+(37, 5, 25.00, 1, 19),
+(38, 1, 25.00, 2, 20),
+(39, 5, 25.00, 1, 21),
+(40, 3, 80.00, 1, 21),
+(41, 4, 95.00, 1, 21),
+(42, 10, 150.00, 1, 21),
+(43, 1, 25.00, 1, 22),
+(44, 10, 150.00, 1, 22),
+(45, 10, 150.00, 1, 23),
+(46, 11, 30.00, 5, 24),
+(47, 5, 25.00, 1, 25),
+(48, 10, 150.00, 1, 25);
 
 -- --------------------------------------------------------
 
@@ -159,7 +188,8 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `correo`, `nombre`, `telefono`, `password`) VALUES
-(4, 'nava.saidalfredo@gmail.com', 'Administrador', '123456', '$2y$10$t3CquRsomyWTGFnC83ZKdeVG6//JtZDxsaNcp9ErFtSFc7BnV5MKW');
+(4, 'nava.saidalfredo@gmail.com', 'Administrador', '123456', '$2y$10$t3CquRsomyWTGFnC83ZKdeVG6//JtZDxsaNcp9ErFtSFc7BnV5MKW'),
+(5, 'prueba@correo.com', 'Prueba', '123456789', '$2y$10$tFX5P4GidI4IJAH4aurAieqsKjuIktp98NYP2Z0hAKMvyOUI88xba');
 
 -- --------------------------------------------------------
 
@@ -198,7 +228,15 @@ INSERT INTO `ventas` (`id`, `idMesa`, `cliente`, `fecha`, `total`, `pagado`, `id
 (14, 2, 'MOSTRADOR', '2025-05-13 11:43:16', 130.00, 130.00, 1),
 (15, 1, 'MOSTRADOR', '2025-05-13 11:46:48', 105.00, 205.00, 3),
 (16, 1, 'MOSTRADOR', '2025-05-13 14:30:57', 95.00, 95.00, 4),
-(17, 2, 'MOSTRADOR', '2025-05-13 14:35:15', 25.00, 25.00, 4);
+(17, 2, 'MOSTRADOR', '2025-05-13 14:35:15', 25.00, 25.00, 4),
+(18, 1, 'MOSTRADOR', '2025-05-14 09:56:45', 200.00, 500.00, 4),
+(19, 2, 'MOSTRADOR', '2025-05-14 12:00:43', 215.00, 250.00, 4),
+(20, 1, 'MOSTRADOR', '2025-05-16 13:38:58', 50.00, 50.00, 1),
+(21, 1, 'MOSTRADOR', '2025-05-17 11:02:38', 350.00, 400.00, 4),
+(22, 1, 'MOSTRADOR', '2025-05-17 12:20:36', 175.00, 200.00, 4),
+(23, 2, 'MOSTRADOR', '2025-05-17 12:20:51', 150.00, 500.00, 4),
+(24, 3, 'MOSTRADOR', '2025-05-17 12:21:03', 150.00, 150.00, 4),
+(25, 1, 'MOSTRADOR', '2025-05-27 13:23:49', 175.00, 200.00, 4);
 
 --
 -- Índices para tablas volcadas
@@ -242,31 +280,31 @@ ALTER TABLE `ventas`
 -- AUTO_INCREMENT de la tabla `categorias`
 --
 ALTER TABLE `categorias`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos`
 --
 ALTER TABLE `insumos`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos_venta`
 --
 ALTER TABLE `insumos_venta`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
