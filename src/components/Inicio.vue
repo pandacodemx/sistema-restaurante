@@ -18,7 +18,7 @@
 
                         </p>
                         <b-field label="Selecciona un periodo de tiempo">
-                            <b-datepicker placeholder="Click para seleccionar..." size="is-small" v-model="periodoHoras"
+                            <b-datepicker placeholder="Seleccionar fecha" size="is-small" v-model="periodoHoras"
                                 @input="busquedaAvanzada('hora')" range>
                             </b-datepicker>
                         </b-field>
@@ -35,8 +35,8 @@
                             <span class="tag is-primary is-medium is-pulled-right"> ${{ totalVentasUsuarios }}</span>
                         </p>
                         <b-field label="Selecciona un periodo de tiempo">
-                            <b-datepicker placeholder="Click para seleccionar..." size="is-small"
-                                v-model="periodoUsuarios" @input="busquedaAvanzada('usuario')" range>
+                            <b-datepicker placeholder="Seleccionar fecha" size="is-small" v-model="periodoUsuarios"
+                                @input="busquedaAvanzada('usuario')" range>
                             </b-datepicker>
                         </b-field>
                         <div id="contenedor-usuarios">
@@ -62,6 +62,7 @@
                 <p class="title is-4 has-text-grey ">
                     <b-icon icon="calendar-month"></b-icon>
                     Ventas por año
+
                     <span class="tag is-primary is-large is-pulled-right"> ${{ totalVentasMeses }}</span>
                     <b-field label="Selecciona un año">
                         <b-select size="is-small" v-model="anioSeleccionado" @change.native="busquedaAvanzada('mes')"

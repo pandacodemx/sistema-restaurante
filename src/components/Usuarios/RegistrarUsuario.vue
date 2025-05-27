@@ -46,9 +46,14 @@ export default ({
                             telefono: ""
                         }
                         this.$buefy.toast.open({
-                            message: 'Usuario registrado. Recuerda que la contraseña por defecto es PacoHunterDev',
-                            type: 'is-success'
-                        })
+                            message: 'Usuario registrado. La contraseña por defecto es AdminRestaurante1',
+                            type: 'is-success',
+                            icon: 'account-check',
+                            iconPack: 'mdi',
+                            duration: 10000,
+                            position: 'is-bottom',
+                            queue: false // Para que no se acumulen los toasts
+                        });
                         this.cargando = false
                     }
                 })
