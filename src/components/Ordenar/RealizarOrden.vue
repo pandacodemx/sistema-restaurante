@@ -1,366 +1,702 @@
 <template>
-    <div class="bg-full p-6">
-        <section>
-            <div class="level-left mb-5">
-                <div class="level-item">
-                    <div class="is-flex is-align-items-center mb-4">
-                        <b-icon icon="table" type="is-success" size="is-medium" class="mr-2"></b-icon>
-                        <p class="title is-3 mb-0">Mesas</p>
-                        <p class="ml-2 has-text-grey-light is-size-6"> disponibles</p>
+    <div class="dashboard-container">
+        <section class="mesas-section">
+            <!-- Encabezado mejorado -->
+            <div class="dashboard-header">
+                <div class="header-content">
+                    <b-icon icon="table" type="is-primary" size="is-large" class="header-icon"></b-icon>
+                    <div>
+                        <h1 class="dashboard-title">Gestión de Mesas</h1>
+                        <p class="dashboard-subtitle">Mesas disponibles y ocupadas</p>
                     </div>
+                </div>
+                <b-button type="is-primary" icon-left="refresh" @click="crearMesas" :loading="cargando"
+                    class="refresh-button">
+                    Actualizar
+                </b-button>
+            </div>
+
+            <!-- Filtros y búsqueda -->
+            <div class="filters-container">
+                <b-field grouped group-multiline>
+                    <b-select v-model="filtroEstado" placeholder="Filtrar por estado" rounded>
+                        <option value="todas">Todas las mesas</option>
+                        <option value="libre">Mesas libres</option>
+                        <option value="ocupada">Mesas ocupadas</option>
+                    </b-select>
+                    <b-input v-model="busqueda" placeholder="Buscar mesa o cliente..." type="search" icon="magnify"
+                        rounded></b-input>
+                </b-field>
+            </div>
+
+            <!-- Contador de mesas -->
+            <div class="counters">
+                <div class="counter-card">
+                    <span class="counter-value">{{ mesasLibres }}</span>
+                    <span class="counter-label">Mesas libres</span>
+                </div>
+                <div class="counter-card">
+                    <span class="counter-value">{{ mesasOcupadas }}</span>
+                    <span class="counter-label">Mesas ocupadas</span>
+                </div>
+                <div class="counter-card">
+                    <span class="counter-value">${{ totalVentas }}</span>
+                    <span class="counter-label">Ventas totales</span>
                 </div>
             </div>
 
+            <!-- Grid de mesas -->
+            <div class="mesas-grid">
+                <div class="mesa-card" v-for="mesa in mesasFiltradas" :key="mesa.mesa.idMesa"
+                    :class="{ 'mesa-ocupada': mesa.mesa.estado === 'ocupada', 'mesa-libre': mesa.mesa.estado === 'libre' }">
+                    <div class="mesa-header">
+                        <div>
+                            <h3 class="mesa-title">Mesa #{{ mesa.mesa.idMesa }}</h3>
+                            <b-tag :type="mesa.mesa.estado === 'ocupada' ? 'is-danger' : 'is-success'" rounded>
+                                {{ mesa.mesa.estado === 'ocupada' ? 'Ocupada' : 'Libre' }}
+                            </b-tag>
+                        </div>
+                        <div v-if="mesa.mesa.total" class="mesa-total">
+                            <span class="total-label">Total</span>
+                            <span class="total-amount">${{ mesa.mesa.total }}</span>
+                        </div>
+                    </div>
 
-            <div class="columns is-multiline">
-                <div class="column" v-for="mesa in mesas" :key="mesa.mesa.idMesa">
+                    <div class="mesa-details">
+                        <div v-if="mesa.mesa.atiende" class="detail-item">
+                            <b-icon icon="account" size="is-small"></b-icon>
+                            <span>{{ mesa.mesa.atiende }}</span>
+                        </div>
+                        <div v-if="mesa.mesa.cliente" class="detail-item">
+                            <b-icon icon="account-star" size="is-small"></b-icon>
+                            <span>{{ mesa.mesa.cliente }}</span>
+                        </div>
+                    </div>
 
-                    <div class="box">
-                        <p class="title is-4 has-text-grey">Mesa #{{ mesa.mesa.idMesa }}
-                            <span class="title is-3 has-text-weight-bold is-pulled-right" v-if="mesa.mesa.total">
-                                <p class="has-text-grey-light">Total</p>
-                                ${{ mesa.mesa.total }}
-                            </span>
-                        </p>
-                        <p v-if="mesa.mesa.atiende">
-                            <strong>Atendido por:</strong>: {{ mesa.mesa.atiende }}
-                        </p>
-                        <p v-if="mesa.mesa.cliente">
-                            <strong>Cliente</strong>: {{ mesa.mesa.cliente }}
-                        </p>
-                        <b-collapse class="card mt-5" animation="slide" aria-id="contentIdForA11y3"
-                            v-if="mesa.mesa.estado === 'ocupada'">
-                            <template #trigger="props">
-                                <div class="card-header" role="button" aria-controls="contentIdForA11y3"
-                                    :aria-expanded="props.open">
-                                    <p class="card-header-title">
-                                        Orden:
-                                    </p>
-                                    <a class="card-header-icon">
-                                        <b-icon :icon="props.open ? 'menu-down' : 'menu-up'">
-                                        </b-icon>
-                                    </a>
-                                </div>
-                            </template>
-
-                            <div class="card-content">
-                                <div class="content">
-                                    <b-table class="minimal-table mt-5 p-4" :data="mesa.insumos"
-                                        :checked-rows.sync="checkedRows"
-                                        :is-row-checkable="(row) => row.estado !== 'entregado'" checkable
-                                        :checkbox-position="checkboxPosition" :checkbox-type="checkboxType">
-
-                                        <b-table-column field="codigo" label="Código" v-slot="props">
-                                            {{ props.row.codigo }}
-                                        </b-table-column>
-
-                                        <b-table-column field="nombre" label="Nombre" v-slot="props">
-                                            {{ props.row.nombre }}
-                                        </b-table-column>
-
-                                        <b-table-column field="caracteristicas" label="Características" v-slot="props">
-                                            {{ props.row.caracteristicas }}
-                                        </b-table-column>
-
-                                        <b-table-column field="cantidad" label="Cantidad" v-slot="props">
-                                            {{ props.row.cantidad }} X ${{ props.row.precio }}
-                                        </b-table-column>
-
-                                        <b-table-column field="subtotal" label="Subtotal" v-slot="props">
-                                            ${{ props.row.cantidad * props.row.precio }}
-                                        </b-table-column>
-                                        <b-table-column field="estado" label="Entrega" v-slot="props">
-                                            <b-icon icon="close-box" type="is-danger"
-                                                v-if="props.row.estado === 'pendiente'"></b-icon>
-                                            <b-icon icon="checkbox-marked" type="is-success"
-                                                v-if="props.row.estado === 'entregado'"></b-icon>
-                                        </b-table-column>
-                                    </b-table>
-                                </div>
+                    <!-- Orden colapsable -->
+                    <b-collapse class="orden-collapse" animation="slide" v-if="mesa.mesa.estado === 'ocupada'">
+                        <template #trigger="props">
+                            <div class="collapse-trigger" :class="{ 'is-open': props.open }">
+                                <span>Ver orden ({{ mesa.insumos.length }} items)</span>
+                                <b-icon :icon="props.open ? 'chevron-up' : 'chevron-down'"></b-icon>
                             </div>
-                        </b-collapse>
-                        <br>
-                        <div class="has-text-centered">
-                            <!-- Botón cuando la mesa está libre -->
-                            <b-button type="is-primary" class="is-rounded is-fullwidth-mobile" icon-left="book"
-                                @click="ocuparMesa(mesa)" v-if="mesa.mesa.estado === 'libre'">
-                                Seleccionar
-                            </b-button>
+                        </template>
 
-                            <!-- Botones cuando la mesa está ocupada -->
-                            <div class="field is-grouped is-grouped-multiline is-justified-center botones-mesa"
-                                v-if="mesa.mesa.estado === 'ocupada'">
-                                <p class="control">
-                                    <b-button type="is-info" class="is-rounded is-fullwidth-mobile"
-                                        icon-left="cart-plus" @click="ocuparMesa(mesa)">
-                                        Agregar insumos
-                                    </b-button>
-                                </p>
+                        <div class="orden-content">
+                            <div class="table-container">
+                                <b-table :data="mesa.insumos" :checked-rows.sync="checkedRows"
+                                    :is-row-checkable="(row) => row.estado !== 'entregado'" checkable
+                                    checkbox-position="left" checkbox-type="is-primary" striped hoverable detailed
+                                    detail-key="id" @details-open="(row) => showDetails = row.id" mobile-cards
+                                    :paginated="mesa.insumos.length > 5" per-page="5">
+                                    <b-table-column field="codigo" label="Código" v-slot="props" width="100">
+                                        {{ props.row.codigo }}
+                                    </b-table-column>
 
-                                <p class="control">
-                                    <b-button type="is-success" class="is-rounded is-fullwidth-mobile"
-                                        icon-left="cash-multiple" @click="cobrar(mesa)">
-                                        Cobrar
-                                    </b-button>
-                                </p>
+                                    <b-table-column field="nombre" label="Producto" v-slot="props">
+                                        <span class="product-name">{{ props.row.nombre }}</span>
+                                    </b-table-column>
 
-                                <p class="control" v-if="checkedRows.length > 0">
-                                    <b-button type="is-warning" class="is-rounded is-fullwidth-mobile"
-                                        icon-left="checkbox-marked" @click="marcarInsumosEntregados(mesa)">
-                                        Entregado
-                                    </b-button>
-                                </p>
+                                    <b-table-column field="cantidad" label="Cant." v-slot="props" centered width="100">
+                                        {{ props.row.cantidad }} × ${{ props.row.precio }}
+                                    </b-table-column>
 
-                                <p class="control">
-                                    <b-button type="is-danger" class="is-rounded is-fullwidth-mobile"
-                                        icon-left="close-box" @click="cancelarOrden(mesa.mesa.idMesa)">
-                                        Cancelar
-                                    </b-button>
-                                </p>
+                                    <b-table-column field="subtotal" label="Subtotal" v-slot="props" width="120">
+                                        ${{ (props.row.cantidad * props.row.precio).toFixed(2) }}
+                                    </b-table-column>
+
+                                    <b-table-column field="estado" label="Estado" v-slot="props" centered width="140">
+                                        <b-tag :type="props.row.estado === 'entregado' ? 'is-success' : 'is-danger'"
+                                            rounded class="status-tag">
+                                            <b-icon :icon="props.row.estado === 'entregado' ? 'check' : 'clock'"
+                                                size="is-small"></b-icon>
+                                            {{ props.row.estado === 'entregado' ? 'Entregado' : 'Pendiente' }}
+                                        </b-tag>
+                                    </b-table-column>
+
+                                    <template #detail="props">
+                                        <article class="details-box">
+                                            <div class="details-content">
+                                                <p><strong>Características:</strong> {{ props.row.caracteristicas ||
+                                                    'N/A' }}</p>
+                                                <p><strong>Notas:</strong> {{ props.row.notas || 'Sin notas adicionales'
+                                                    }}</p>
+                                            </div>
+                                        </article>
+                                    </template>
+
+                                    <template #empty>
+                                        <div class="has-text-centered">No hay insumos en esta orden</div>
+                                    </template>
+                                </b-table>
+                            </div>
+
+                            <!-- Botón de entregar seleccionados -->
+                            <div class="has-text-right mt-3" v-if="checkedRows.length > 0">
+                                <b-button type="is-warning" icon-left="check" @click="marcarInsumosEntregados(mesa)"
+                                    size="is-small" rounded>
+                                    Marcar {{ checkedRows.length }} seleccionados como entregados
+                                </b-button>
                             </div>
                         </div>
+                    </b-collapse>
 
+                    <!-- Acciones -->
+                    <div class="mesa-actions">
+                        <!-- Mesa libre -->
+                        <b-button v-if="mesa.mesa.estado === 'libre'" type="is-primary" icon-left="plus"
+                            @click="ocuparMesa(mesa)" expanded rounded>
+                            Ocupar mesa
+                        </b-button>
+
+                        <!-- Mesa ocupada -->
+                        <div v-if="mesa.mesa.estado === 'ocupada'" class="action-buttons">
+                            <b-button type="is-info" icon-left="plus" @click="ocuparMesa(mesa)" rounded outlined>
+                                Agregar
+                            </b-button>
+
+                            <b-button type="is-success" icon-left="cash" @click="cobrar(mesa)" rounded>
+                                Cobrar
+                            </b-button>
+
+                            <b-button type="is-warning" icon-left="check" @click="marcarInsumosEntregados(mesa)"
+                                :disabled="checkedRows.length === 0" rounded outlined>
+                                Entregar
+                            </b-button>
+
+                            <b-button type="is-danger" icon-left="close" @click="cancelarOrden(mesa.mesa.idMesa)"
+                                rounded outlined>
+                                Cancelar
+                            </b-button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>
-            <ticket @impreso="onImpreso" :venta="this.ventaSeleccionada" :insumos="insumosSeleccionados"
-                :datosLocal="datos" :logo="logo" v-if="mostrarTicket"></ticket>
+
+            <!-- Modales y componentes auxiliares -->
+            <b-loading :is-full-page="false" v-model="cargando" :can-cancel="false"></b-loading>
+
+            <ticket @impreso="onImpreso" :venta="ventaSeleccionada" :insumos="insumosSeleccionados" :datosLocal="datos"
+                :logo="logo" v-if="mostrarTicket"></ticket>
         </section>
     </div>
 </template>
+
 <script>
 import HttpService from '../../Servicios/HttpService'
 import Ticket from '../Ventas/Ticket.vue'
 import Utiles from '../../Servicios/Utiles'
 
-export default ({
-    name: "RealizarOrden",
+export default {
+    name: "GestorMesas",
     components: { Ticket },
 
     data: () => ({
         datos: {},
         logo: null,
-        checkboxPosition: 'left',
-        checkboxType: 'is-primary',
         checkedRows: [],
         mesas: [],
         cargando: false,
         mostrarTicket: false,
         ventaSeleccionada: {},
-        insumosSeleccionados: []
+        insumosSeleccionados: [],
+        filtroEstado: "todas",
+        busqueda: "",
+        showDetails: null
     }),
 
+    computed: {
+        mesasFiltradas() {
+            return this.mesas.filter(mesa => {
+                // Filtro por estado
+                const estadoFiltro = this.filtroEstado === "todas" ||
+                    mesa.mesa.estado === this.filtroEstado;
+
+                // Filtro por búsqueda
+                const busquedaFiltro = this.busqueda === "" ||
+                    mesa.mesa.idMesa.toString().includes(this.busqueda) ||
+                    (mesa.mesa.cliente && mesa.mesa.cliente.toLowerCase().includes(this.busqueda.toLowerCase()));
+
+                return estadoFiltro && busquedaFiltro;
+            });
+        },
+
+        mesasLibres() {
+            return this.mesas.filter(m => m.mesa.estado === "libre").length;
+        },
+
+        mesasOcupadas() {
+            return this.mesas.filter(m => m.mesa.estado === "ocupada").length;
+        },
+
+        totalVentas() {
+            return this.mesas.reduce((total, mesa) => {
+                return mesa.mesa.estado === "ocupada" ? total + parseFloat(mesa.mesa.total || 0) : total;
+            }, 0).toFixed(2);
+        }
+    },
+
     mounted() {
-        this.crearMesas()
-        this.obtenerDatos()
+        this.crearMesas();
+        this.obtenerDatos();
     },
 
     methods: {
         cancelarOrden(id) {
             this.$buefy.dialog.confirm({
-                title: 'Cancelar Mesa # ' + id,
-                message: '<div class="content"><p><strong>¡Atención!</strong></p>   <p class="has-text-danger">¿Seguro deseas cancelar la órden?</p></div> ',
-                confirmText: 'Cancelar',
-                cancelText: 'Atras',
+                title: `Cancelar orden Mesa #${id}`,
+                message: `
+                    <div class="content">
+                        <p><b-icon icon="alert-circle" type="is-danger"></b-icon> <strong>¿Cancelar esta orden?</strong></p>
+                        <p>Todos los productos no entregados serán eliminados.</p>
+                    </div>
+                `,
+                confirmText: 'Confirmar cancelación',
+                cancelText: 'Volver',
                 type: 'is-danger',
                 hasIcon: true,
+                icon: 'alert-circle-outline',
+                iconPack: 'mdi',
                 onConfirm: () => {
-                    this.cargando = true
+                    this.cargando = true;
                     HttpService.eliminar("cancelar_mesa.php", id)
                         .then(resultado => {
                             if (resultado) {
                                 this.$buefy.toast.open({
-                                    message: "Orden de la mesa " + id + " cancelada",
-                                    type: "is-success"
-                                })
-                                this.crearMesas()
-                                this.cargando = false
+                                    message: `Orden de la mesa ${id} cancelada`,
+                                    type: 'is-success',
+                                    icon: 'check-circle-outline'
+                                });
+                                this.crearMesas();
                             }
                         })
-
+                        .finally(() => this.cargando = false);
                 }
-            })
-        },
-
-        obtenerDatos() {
-            HttpService.obtener("obtener_datos_local.php").then((resultado) => {
-                this.datos = resultado;
-                this.logo = Utiles.generarUrlImagen(this.datos.logo)
             });
         },
 
+        obtenerDatos() {
+            HttpService.obtener("obtener_datos_local.php")
+                .then((resultado) => {
+                    this.datos = resultado;
+                    this.logo = Utiles.generarUrlImagen(this.datos.logo);
+                });
+        },
+
         onImpreso(resultado) {
-            this.mostrarTicket = resultado
+            this.mostrarTicket = resultado;
         },
 
         imprimirComprobante(venta) {
-            let hoy = new Date();
+            const hoy = new Date();
+            const fecha = hoy.toLocaleDateString();
+            const hora = hoy.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            let fecha = hoy.getFullYear() + '-' + (hoy.getMonth() + 1) + '-' + hoy.getDate();
-
-            let hora = hoy.getHours() + ":" + hoy.getMinutes() + ":" + hoy.getSeconds();
-
-            let fechaVenta = fecha + ' ' + hora
             this.ventaSeleccionada = {
                 atendio: venta.atiende,
                 cliente: venta.cliente,
-                fecha: fechaVenta,
+                fecha: `${fecha} ${hora}`,
                 pagado: venta.pagado,
                 total: venta.total
-            }
+            };
 
-            this.insumosSeleccionados = venta.insumos
-            this.mostrarTicket = true
+            this.insumosSeleccionados = venta.insumos;
+            this.mostrarTicket = true;
         },
 
         marcarInsumosEntregados(mesa) {
-            this.cargando = true
-            let insumos = mesa.insumos
-            let marcados = this.checkedRows
+            this.cargando = true;
+            const insumos = mesa.insumos.map(insumo => {
+                const estaMarcado = this.checkedRows.some(m => m.id === insumo.id);
+                return estaMarcado ? { ...insumo, estado: "entregado" } : insumo;
+            });
 
-            insumos.forEach(insumo => {
-                marcados.forEach(marca => {
-                    if (insumo.id === marca.id)
-                        insumo.estado = "entregado"
-                })
-            })
-
-            let payload = {
+            const payload = {
                 id: mesa.mesa.idMesa,
                 insumos: insumos,
                 total: mesa.mesa.total,
                 atiende: mesa.mesa.atiende,
                 idUsuario: mesa.mesa.idUsuario,
                 cliente: mesa.mesa.cliente
-            }
+            };
 
             HttpService.registrar(payload, "editar_mesa.php")
                 .then(resultado => {
                     if (resultado) {
                         this.$buefy.toast.open({
-                            message: 'Insumos marcados como entregados',
-                            type: 'is-success'
-                        })
-                        this.crearMesas()
-                        this.cargando = false
+                            message: 'Productos marcados como entregados',
+                            type: 'is-success',
+                            icon: 'check-circle-outline'
+                        });
+                        this.crearMesas();
+                        this.checkedRows = [];
                     }
-                    this.checkedRows = []
                 })
-
+                .finally(() => this.cargando = false);
         },
 
         cobrar(mesa) {
             this.$buefy.dialog.prompt({
-                title: `Cobro mesa #` + mesa.mesa.idMesa,
-                message: '<div class="content"><p><strong>¡Atención!</strong></p> <p class="has-text-danger has-text-weight-bold">El total a pagar $ ' + mesa.mesa.total + ' </p></div> ',
-
+                title: `Cobrar Mesa #${mesa.mesa.idMesa}`,
+                message: `
+                    <div class="content">
+                        <p><strong>Total a pagar:</strong></p>
+                        <p class="total-display">$${mesa.mesa.total}</p>
+                    </div>
+                `,
                 inputAttrs: {
                     type: 'number',
-                    value: "",
                     placeholder: 'Cantidad recibida',
-                    min: 1,
-                    confirmText: 'Aceptar'
+                    min: mesa.mesa.total,
+                    step: "0.01",
+                    icon: 'cash-multiple'
                 },
                 trapFocus: true,
+                confirmText: 'Confirmar pago',
+                cancelText: 'Cancelar',
                 onConfirm: (value) => {
-                    if (parseFloat(value) < parseFloat(mesa.mesa.total)) {
+                    const montoRecibido = parseFloat(value);
+                    const total = parseFloat(mesa.mesa.total);
+
+                    if (montoRecibido < total) {
                         this.$buefy.toast.open({
-                            message: 'Atencion! Ingresa una cantidad correcta',
-                            type: 'is-warning'
-                        })
-                        return
+                            message: 'El monto recibido es menor al total',
+                            type: 'is-danger',
+                            icon: 'alert-circle'
+                        });
+                        return false;
                     }
 
-                    this.cargando = true
-                    let cambio = parseFloat(value - mesa.mesa.total)
+                    this.cargando = true;
+                    const cambio = (montoRecibido - total).toFixed(2);
 
-                    let payload = {
+                    const payload = {
                         idMesa: mesa.mesa.idMesa,
                         cliente: mesa.mesa.cliente,
-                        total: mesa.mesa.total,
-                        pagado: value,
+                        total: total,
+                        pagado: montoRecibido,
                         idUsario: mesa.mesa.idUsuario,
                         insumos: mesa.insumos,
                         atiende: mesa.mesa.atiende
-                    }
+                    };
 
                     HttpService.registrar(payload, "registrar_venta.php")
                         .then(registrado => {
                             if (registrado) {
                                 this.$buefy.dialog.alert({
-                                    title: 'Venta finalizada',
-                                    message: '<div class="content"><p><strong>¡Mesa cerrada!</strong></p> <p class="has-text-danger has-text-weight-bold">Cambio a entregar <b>$' + cambio + '</b> </p></div>',
-                                    confirmText: 'Terminar'
-                                })
-                                this.imprimirComprobante(payload)
-                                this.crearMesas()
-                                this.cargando = false
+                                    title: 'Venta completada',
+                                    message: `
+                                        <div class="content">
+                                            <p><strong>Cambio:</strong></p>
+                                            <p class="cambio-display">$${cambio}</p>
+                                        </div>
+                                    `,
+                                    confirmText: 'Finalizar',
+                                    icon: 'cash-register',
+                                    type: 'is-success'
+                                });
+                                this.imprimirComprobante(payload);
+                                this.crearMesas();
                             }
                         })
-
+                        .finally(() => this.cargando = false);
                 }
-            })
+            });
         },
 
         crearMesas() {
-            this.cargando = true
+            this.cargando = true;
             HttpService.obtener("obtener_mesas.php")
                 .then(resultado => {
-                    this.mesas = resultado
-                    this.cargando = false
+                    this.mesas = resultado;
                 })
+                .finally(() => this.cargando = false);
         },
 
         ocuparMesa(mesa) {
             this.$router.push({
                 name: "Ordenar",
-                params: { id: mesa.mesa.idMesa, insumosEnLista: mesa.insumos, cliente: mesa.mesa.cliente },
-            })
+                params: {
+                    id: mesa.mesa.idMesa,
+                    insumosEnLista: mesa.insumos,
+                    cliente: mesa.mesa.cliente
+                },
+            });
         }
     }
-})
+}
 </script>
-<style>
-.bg-full {
-    background-color: #f0efef;
-    border-radius: 12px;
-    min-height: 100dvh;
-    padding: 20px;
-    margin-top: 10px;
+
+<style scoped>
+.dashboard-container {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 2rem;
 }
 
-.minimal-table {
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-icon {
+    background-color: #f0f7ff;
+    padding: 0.75rem;
+    border-radius: 50%;
+}
+
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.dashboard-subtitle {
+    font-size: 1rem;
+    color: #7f8c8d;
+}
+
+.filters-container {
+    margin-bottom: 1.5rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.counters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.counter-card {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+}
+
+.counter-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: block;
+    color: #3498db;
+}
+
+.counter-label {
+    font-size: 0.875rem;
+    color: #7f8c8d;
+}
+
+.mesas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.mesa-card {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     overflow: hidden;
-    font-size: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.minimal-table th {
-    background-color: #e0e0e0;
+.mesa-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+.mesa-ocupada {
+    border-top: 4px solid #ff3860;
+}
+
+.mesa-libre {
+    border-top: 4px solid #00d1b2;
+}
+
+.mesa-header {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mesa-title {
+    font-size: 1.25rem;
     font-weight: 600;
-    color: #4a4a4a;
-    border: none;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
 }
 
-.minimal-table td {
-    border: none;
-    padding: 0.75rem 1rem;
+.mesa-total {
+    text-align: right;
 }
 
-.minimal-table .b-table .table.is-fullwidth {
-    border-collapse: separate;
-    border-spacing: 0;
+.total-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #7f8c8d;
 }
 
-.minimal-table .b-table .table.is-fullwidth tbody tr:hover {
-    background-color: #f5f5f5;
-    transition: background-color 0.3s;
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
 }
 
-.field.is-grouped .control {
-    margin-right: 4px;
+.mesa-details {
+    padding: 0 1.25rem 1.25rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #34495e;
+}
+
+.orden-collapse {
+    margin: 0 1.25rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.collapse-trigger {
+    padding: 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    color: #3498db;
+    font-weight: 500;
+}
+
+.collapse-trigger.is-open {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.orden-content {
+    padding: 1rem 0;
+}
+
+.mesa-actions {
+    padding: 1.25rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.detail-container {
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 0.5rem;
+}
+
+.total-display {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #27ae60;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+.cambio-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #e74c3c;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+/* Añadir estos estilos al componente */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.product-name {
+    font-weight: 500;
+    color: #363636;
+}
+
+.status-tag {
+    padding: 0.5em 0.75em;
+    font-size: 0.85rem;
+}
+
+.details-box {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    padding: 1rem;
+}
+
+.details-content {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Estilos para móviles */
+@media screen and (max-width: 768px) {
+    .table-container {
+        font-size: 0.85rem;
+    }
+
+    .b-table .table td,
+    .b-table .table th {
+        padding: 0.5em 0.75em;
+    }
+
+    .product-name {
+        font-size: 0.9rem;
+    }
+
+    .status-tag {
+        font-size: 0.75rem;
+        padding: 0.25em 0.5em;
+    }
+}
+
+@media (max-width: 768px) {
+    .mesas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
