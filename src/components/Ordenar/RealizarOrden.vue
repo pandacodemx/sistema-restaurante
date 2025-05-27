@@ -89,9 +89,6 @@
                                     checkbox-position="left" checkbox-type="is-primary" striped hoverable detailed
                                     detail-key="id" @details-open="(row) => showDetails = row.id" mobile-cards
                                     :paginated="mesa.insumos.length > 5" per-page="5">
-                                    <b-table-column field="codigo" label="Código" v-slot="props" width="100">
-                                        {{ props.row.codigo }}
-                                    </b-table-column>
 
                                     <b-table-column field="nombre" label="Producto" v-slot="props">
                                         <span class="product-name">{{ props.row.nombre }}</span>
@@ -99,10 +96,6 @@
 
                                     <b-table-column field="cantidad" label="Cant." v-slot="props" centered width="100">
                                         {{ props.row.cantidad }} × ${{ props.row.precio }}
-                                    </b-table-column>
-
-                                    <b-table-column field="subtotal" label="Subtotal" v-slot="props" width="120">
-                                        ${{ (props.row.cantidad * props.row.precio).toFixed(2) }}
                                     </b-table-column>
 
                                     <b-table-column field="estado" label="Estado" v-slot="props" centered width="140">
@@ -120,7 +113,7 @@
                                                 <p><strong>Características:</strong> {{ props.row.caracteristicas ||
                                                     'N/A' }}</p>
                                                 <p><strong>Notas:</strong> {{ props.row.notas || 'Sin notas adicionales'
-                                                    }}</p>
+                                                }}</p>
                                             </div>
                                         </article>
                                     </template>
