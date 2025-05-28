@@ -1,11 +1,16 @@
 <template>
     <div class="bg-full p-6">
         <section>
-            <p class="title is-3 has-text-weight-semibold">
-                <b-icon icon="application-cog-outline" size="is-large" type="is-success">
-                </b-icon>
-                Configurar
-            </p>
+            <nav class="level is-mobile">
+                <div class="level-left">
+                    <div class="level-item">
+                        <p class="title is-3 has-text-weight-bold has-text-primary">
+                            <b-icon icon="application-cog-outline" size="is-large" class="mr-3"></b-icon>
+                            Configurar
+                        </p>
+                    </div>
+                </div>
+            </nav>
             <datos-configuracion @registrado="onRegistrado" :datos="datosLocal"></datos-configuracion>
             <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>
 
