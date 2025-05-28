@@ -1,28 +1,28 @@
 <template>
   <div class="bg-full p-6">
-    <br>
-    <nav class="level">
-      <div class="level-left mb-5">
+    <nav class="level is-mobile">
+      <div class="level-left">
         <div class="level-item">
-          <div class="is-flex is-align-items-center mb-4">
-            <b-icon icon="basket" type="is-primary" size="is-medium" class="mr-2"></b-icon>
-            <p class="title is-3 mb-0">Insumos</p>
-            <p class="ml-2 has-text-grey-light is-size-6">{{ insumos.length }} resultados</p>
+          <p class="title is-3 has-text-weight-bold has-text-primary">
+            <b-icon icon="basket" size="is-large" class="mr-3"></b-icon>
+            Insumos
+          <p class="ml-2 has-text-grey-light is-size-6">{{ insumos.length }} resultados</p>
+          </p>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <div class="notification">
+            <b-button type="is-success" icon-left="plus" class="is-rounded badge-new has-text-weight-light"
+              tag="router-link" to="/registrar-insumo">
+              Agregar insumo
+            </b-button>
           </div>
         </div>
       </div>
-
-      <div class="level-right mb-5">
-        <p class="level-item">
-          <b-button type="is-success is-bold" icon-left="plus" class="is-rounded has-text-weight-light"
-            tag="router-link" to="/registrar-insumo">
-            Agregar insumo
-          </b-button>
-        </p>
-      </div>
     </nav>
 
-    <b-table class="minimal-table mt-5 p-5" :data="insumos" :paginated="isPaginated" :per-page="perPage"
+    <b-table class="elegant-table mt-5 p-5 is-size-7" :data="insumos" :paginated="isPaginated" :per-page="perPage"
       :bordered="false" :striped="false" :current-page.sync="currentPage" :pagination-simple="isPaginationSimple"
       :pagination-position="paginationPosition" :default-sort-direction="defaultSortDirection"
       :pagination-rounded="isPaginationRounded" :sort-icon="sortIcon" :sort-icon-size="sortIconSize"
@@ -144,7 +144,7 @@ export default {
     filtros: {
       tipo: "",
       categoria: "",
-      nombre: "",      
+      nombre: "",
     },
     categorias: [],
     cargando: false,
@@ -157,9 +157,9 @@ export default {
     sortIconSize: "is-small",
     currentPage: 1,
     perPage: 20,
-    imagenExpandida: null, 
+    imagenExpandida: null,
     mostrarModalImagen: false,
-    
+
   }),
 
   mounted() {
@@ -168,11 +168,11 @@ export default {
 
   methods: {
     expandirImagen(ruta) {
-    this.imagenExpandida = this.obtenerRutaImagen(ruta);
-    this.mostrarModalImagen = true;
+      this.imagenExpandida = this.obtenerRutaImagen(ruta);
+      this.mostrarModalImagen = true;
     },
     obtenerRutaImagen(ruta) {
-    return `http://localhost/sistema-restaurante/api/${ruta}`;
+      return `http://localhost/sistema-restaurante/api/${ruta}`;
     },
     busquedaAvanzada() {
       if (this.filtros.tipo === "BEBIDA" || this.filtros.tipo === "PLATILLO") {
@@ -286,37 +286,54 @@ export default {
   /* gris claro */
 }
 
-.minimal-table {
+.elegant-table {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
   overflow: hidden;
-  font-size: 14px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
 }
 
-.minimal-table th {
-  background-color: #e6e6e6;
+.elegant-table th {
+  background-color: #f8f9fa;
+  color: #495057;
   font-weight: 600;
-  color: #a7a7a7;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.5px;
+  border: none !important;
+}
+
+.elegant-table tr:hover {
+  background-color: #f8f9fa !important;
+}
+
+.elegant-table td {
   border: none;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
 }
 
-.minimal-table td {
-  border: none;
-  padding: 0.75rem 1rem;
+/* Efecto hover para botones */
+.button-hover-effect {
+  transition: all 0.3s ease;
+  transform: translateY(0);
 }
 
-.minimal-table .b-table .table.is-fullwidth {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.minimal-table .b-table .table.is-fullwidth tbody tr:hover {
-  background-color: #f5f5f5;
-  transition: background-color 0.3s;
+.button-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .field.is-grouped .control {
   margin-right: 4px;
+}
+
+.badge-new {
+  font-size: 1.1em;
+  padding: 8px 15px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #48b8c7, #115f72);
+  color: white;
+  box-shadow: 0 4px 10px rgba(72, 199, 116, 0.3);
 }
 </style>

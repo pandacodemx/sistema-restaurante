@@ -1,8 +1,6 @@
 <template>
     <div class="bg-full p-6">
         <section>
-            <br>
-
             <div class="welcome">
                 <h1>Bienvenido! <b>{{ nombreUsuario }}</b> </h1>
                 <small>Sistema para restaurantes V1.0 </small>
@@ -10,12 +8,11 @@
 
             <div class="columns is-multiline">
                 <div class="column is-one-third">
-                    <div class="box">
+                    <div class="box-welcome">
                         <p class="title is-4 has-text-grey ">
                             <b-icon icon="plus-circle"></b-icon>
                             Ventas por hora
                             <span class="tag is-primary is-medium is-pulled-right"> ${{ totalVentasHora }}</span>
-
                         </p>
                         <b-field label="Selecciona un periodo de tiempo">
                             <b-datepicker placeholder="Seleccionar fecha" size="is-small" v-model="periodoHoras"
@@ -28,7 +25,7 @@
                     </div>
                 </div>
                 <div class="column is-one-third">
-                    <div class="box">
+                    <div class="box-welcome">
                         <p class="title is-4 has-text-grey ">
                             <b-icon icon="account"></b-icon>
                             Ventas de usuarios
@@ -45,7 +42,7 @@
                     </div>
                 </div>
                 <div class="column is-one-third">
-                    <div class="box">
+                    <div class="box-welcome">
                         <p class="title is-4 has-text-grey ">
                             <b-icon icon="calendar-week"></b-icon>
                             Ventas de la semana
@@ -58,7 +55,7 @@
                     </div>
                 </div>
             </div>
-            <div class="box">
+            <div class="box-welcome">
                 <p class="title is-4 has-text-grey ">
                     <b-icon icon="calendar-month"></b-icon>
                     Ventas por año
@@ -77,9 +74,10 @@
                     <canvas id="grafica-mes"></canvas>
                 </div>
             </div>
+            <br>
             <div class="columns is-multiline">
                 <div class="column is-6">
-                    <div class="box">
+                    <div class="box-welcome">
                         <div class="title is-4 has-text-grey ">
                             <b-icon icon="food-fork-drink"></b-icon>
                             Insumos más vendidos
@@ -127,7 +125,7 @@
                     </div>
                 </div>
                 <div class="column is-6">
-                    <div class="box">
+                    <div class="box-welcome">
                         <p class="title is-4 has-text-grey ">
                             <b-icon icon="table-furniture"></b-icon>
                             Mesas más ocupadas
@@ -346,6 +344,15 @@ export default ({
     margin-bottom: 15px;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.box-welcome {
+    background: rgba(255, 255, 255, 0.582);
+    backdrop-filter: blur(5px);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: none;
+    padding: 1.25rem;
 }
 
 small {

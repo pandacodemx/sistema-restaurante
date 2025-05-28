@@ -1,76 +1,87 @@
 <template>
     <div class="bg-full p-6">
         <div>
-            <br>
-            <p class="title is-3 has-text-weight-semibold">
-                <b-icon icon="archive-outline" size="is-medium" type="is-success">
-                </b-icon>
-                Categorías
-                <b-button type="is-success" icon-left="plus" class="is-rounded has-text-weight-light"
-                    @click="abrirModal('registra')">
-                    Añadir categoría
-                </b-button>
+            <nav class="level is-mobile">
+                <div class="level-left">
+                    <div class="level-item">
+                        <p class="title is-3 has-text-weight-bold has-text-primary">
+                            <b-icon icon="archive-outline" size="is-large" class="mr-3"></b-icon>
+                            Categorías
+                        </p>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <div class="notification">
+                            <b-button type="is-success" icon-left="plus"
+                                class="is-rounded badge-new has-text-weight-light" @click="abrirModal('registra')"">
+                                    Añadir categoría
+                            </b-button>
+                        </div>
+                    </div>
+                </div>
+            </nav>   
+            <b-table class=" elegant-table mt-5 p-5 is-size-7" :data="categorias" :paginated="isPaginated"
+                                :per-page="perPage" :bordered="true" :current-page.sync="currentPage"
+                                :pagination-simple="isPaginationSimple" :pagination-position="paginationPosition"
+                                :default-sort-direction="defaultSortDirection" :pagination-rounded="isPaginationRounded"
+                                :sort-icon="sortIcon" :sort-icon-size="sortIconSize" aria-next-label="Next page"
+                                aria-previous-label="Previous page" aria-page-label="Page"
+                                aria-current-label="Current page">
 
-            </p>
-            <b-table class="minimal-table mt-5 p-5" :data="categorias" :paginated="isPaginated" :per-page="perPage"
-                :bordered="true" :current-page.sync="currentPage" :pagination-simple="isPaginationSimple"
-                :pagination-position="paginationPosition" :default-sort-direction="defaultSortDirection"
-                :pagination-rounded="isPaginationRounded" :sort-icon="sortIcon" :sort-icon-size="sortIconSize"
-                aria-next-label="Next page" aria-previous-label="Previous page" aria-page-label="Page"
-                aria-current-label="Current page">
 
+                                <b-table-column field="icono" label="" v-slot="props">
+                                    <b-icon icon="noodles" size="is-small" v-if="props.row.tipo === 'PLATILLO'">
+                                    </b-icon>
 
-                <b-table-column field="icono" label="" v-slot="props">
-                    <b-icon icon="noodles" size="is-small" v-if="props.row.tipo === 'PLATILLO'">
-                    </b-icon>
+                                    <b-icon icon="cup" size="is-small" v-if="props.row.tipo === 'BEBIDA'">
+                                    </b-icon>
+                                </b-table-column>
 
-                    <b-icon icon="cup" size="is-small" v-if="props.row.tipo === 'BEBIDA'">
-                    </b-icon>
-                </b-table-column>
+                                <b-table-column field="tipo" label="Tipo" sortable v-slot="props">
+                                    {{ props.row.tipo }}
+                                </b-table-column>
 
-                <b-table-column field="tipo" label="Tipo" sortable v-slot="props">
-                    {{ props.row.tipo }}
-                </b-table-column>
+                                <b-table-column field="nombre" label="Nombre" sortable v-slot="props">
+                                    {{ props.row.nombre }}
+                                </b-table-column>
 
-                <b-table-column field="nombre" label="Nombre" sortable v-slot="props">
-                    {{ props.row.nombre }}
-                </b-table-column>
+                                <b-table-column field="descripcion" label="Descripción" sortable v-slot="props">
+                                    {{ props.row.descripcion }}
+                                </b-table-column>
+                                <b-table-column field="acciones" label="Acciones" v-slot="props">
 
-                <b-table-column field="descripcion" label="Descripción" sortable v-slot="props">
-                    {{ props.row.descripcion }}
-                </b-table-column>
-                <b-table-column field="acciones" label="Acciones" v-slot="props">
+                                    <b-button type="is-danger  is-light" icon-left="delete-circle" size="is-small"
+                                        title="Eliminar" @click="eliminar(props.row)">
+                                        Eliminar
+                                    </b-button>
 
-                    <b-button type="is-danger  is-light" icon-left="delete-circle" size="is-small" title="Eliminar"
-                        @click="eliminar(props.row)">
-                        Eliminar
-                    </b-button>
+                                    <b-button type="is-primary is-light" icon-left="clipboard-check" title="Editar"
+                                        size="is-small" @click="editar(props.row)">
+                                        Editar
+                                    </b-button>
+                                </b-table-column>
 
-                    <b-button type="is-primary is-light" icon-left="clipboard-check" title="Editar" size="is-small"
-                        @click="editar(props.row)">
-                        Editar
-                    </b-button>
-                </b-table-column>
+                                </b-table>
+                                <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>
+                                <b-select v-model="perPage">
+                                    <option value="5">5 por página</option>
+                                    <option value="10">10 por página</option>
+                                    <option value="15">15 por página</option>
+                                    <option value="20">20 por página</option>
+                                </b-select>
 
-            </b-table>
-            <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>
-            <b-select v-model="perPage">
-                <option value="5">5 por página</option>
-                <option value="10">10 por página</option>
-                <option value="15">15 por página</option>
-                <option value="20">20 por página</option>
-            </b-select>
+                                <b-modal :active.sync="mostrarModalCategoria" has-modal-card trap-focus
+                                    :destroy-on-hide="false" aria-role="dialog" aria-label="Agregar categoría"
+                                    close-button-aria-label="Close" aria-modal>
 
-            <b-modal :active.sync="mostrarModalCategoria" has-modal-card trap-focus :destroy-on-hide="false"
-                aria-role="dialog" aria-label="Agregar categoría" close-button-aria-label="Close" aria-modal>
+                                    <modal-categoria @registrado="onRegistrado" :categoria="categoria" :titulo="titulo"
+                                        :tipo="tipo"></modal-categoria>
 
-                <modal-categoria @registrado="onRegistrado" :categoria="categoria" :titulo="titulo"
-                    :tipo="tipo"></modal-categoria>
+                                </b-modal>
 
-            </b-modal>
-
-        </div>
-    </div>
+                        </div>
+                    </div>
 </template>
 <script>
 import HttpService from '../../Servicios/HttpService'
@@ -191,37 +202,54 @@ export default {
     vertical-align: middle;
 }
 
-.minimal-table {
+.elegant-table {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
     overflow: hidden;
-    font-size: 14px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
 }
 
-.minimal-table th {
-    background-color: #e6e6e6;
+.elegant-table th {
+    background-color: #f8f9fa;
+    color: #495057;
     font-weight: 600;
-    color: #4a4a4a;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 0.5px;
+    border: none !important;
+}
+
+.elegant-table tr:hover {
+    background-color: #f8f9fa !important;
+}
+
+.elegant-table td {
     border: none;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
 }
 
-.minimal-table td {
-    border: none;
-    padding: 0.75rem 1rem;
+/* Efecto hover para botones */
+.button-hover-effect {
+    transition: all 0.3s ease;
+    transform: translateY(0);
 }
 
-.minimal-table .b-table .table.is-fullwidth {
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.minimal-table .b-table .table.is-fullwidth tbody tr:hover {
-    background-color: #f5f5f5;
-    transition: background-color 0.3s;
+.button-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .field.is-grouped .control {
     margin-right: 4px;
+}
+
+.badge-new {
+    font-size: 1.1em;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #48b8c7, #115f72);
+    color: white;
+    box-shadow: 0 4px 10px rgba(72, 199, 116, 0.3);
 }
 </style>

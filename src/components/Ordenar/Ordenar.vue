@@ -56,38 +56,6 @@
           <productos-orden :lista="insumosAnteriores" :tipo="'entregado'" v-if="insumosAnteriores.length > 0" />
 
         </div>
-
-        <div class="column is-2" v-if="insumos.length > 0">
-          <p class="title is-6 has-text-weight-bold has-text-grey">
-            Sugerencias:
-          </p>
-          <div class="">
-            <div class="" v-for="insumo in insumos" :key="insumo.id">
-              <div class="card">
-                <header class="card-header">
-                  <div class="card-header-title is-size-7">
-                    <b-icon size="is-small" icon="noodles" class="has-text-info"
-                      v-if="insumo.tipo === 'PLATILLO'"></b-icon>
-                    <b-icon icon="cup" size="is-small" class="has-text-success"
-                      v-if="insumo.tipo === 'BEBIDA'"></b-icon>
-                    {{ insumo.nombre }}
-                  </div>
-                  <b-button class="mb-1 is-pulled-right" type="is-primary" size="is-small" icon-left="plus"
-                    @click="agregarInsumoAOrden(insumo)">
-                  </b-button>
-                </header>
-                <div class="card-content">
-                  <div class="content is-size-7">
-                    {{ insumo.descripcion }}
-                    <div class="has-text-centered has-text-weight-bold">
-                      ${{ insumo.precio }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   </div>

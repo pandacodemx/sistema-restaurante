@@ -1,47 +1,54 @@
 <template>
   <div class="bg-full p-6">
     <section>
-      <br />
-      <nav class="level">
+      <nav class="level is-mobile">
         <div class="level-left">
           <div class="level-item">
-            <p class="title is-3 has-text-weight-semibold">
-              <b-icon icon="cash-register" size="is-large" type="is-success"> </b-icon>
-              Reporte de ventas
+            <p class="title is-3 has-text-weight-bold has-text-primary">
+              <b-icon icon="chart-box" size="is-large" class="mr-3"></b-icon>
+              Reporte de Ventas
             </p>
-
           </div>
         </div>
-
         <div class="level-right">
-          <p class="level-item">
-            <span class="has-background-danger  is-pulled-right has-text-white"
-              style="font-size:1.5em; padding: 10px; border-radius: 15px;">
-              Total ventas: ${{ totalVentas }}
-            </span>
-          </p>
+          <div class="level-item">
+            <div class="notification total-badge">
+              <p class="title is-4">Total ventas: <span class="has-text-weight-bold">${{ totalVentas.toLocaleString()
+              }}</span></p>
+            </div>
+          </div>
         </div>
       </nav>
-      <div class="box">
-        <p class="title is-4 has-text-weight-light has-text-grey">
-          Totales de ventas por usuario
-        </p>
-        <b-field grouped group-multiline>
-          <div class="control" v-for="usuario in ventasPorUsuario" :key="usuario.nombre">
-            <b-taglist attached>
-              <b-tag size="is-large">{{ usuario.nombre }}</b-tag>
-              <b-tag size="is-large" type="is-info">${{ usuario.total }}</b-tag>
-            </b-taglist>
+
+      <div class="columns is-multiline is-mobile mb-5">
+        <div class="column is-one-quarter">
+          <div class="notification is-info is-light">
+            <p class="heading">Ventas hoy</p>
+            <p class="title">${{ ventasHoy.toLocaleString() }}</p>
           </div>
-        </b-field>
+        </div>
+        <div class="column is-one-quarter">
+          <div class="notification is-success is-light">
+            <p class="heading">Ventas semana</p>
+            <p class="title">${{ ventasSemana.toLocaleString() }}</p>
+          </div>
+        </div>
+        <div class="column is-one-quarter">
+          <div class="notification is-warning is-light">
+            <p class="heading">Promedio/venta</p>
+            <p class="title">${{ promedioVenta.toLocaleString() }}</p>
+          </div>
+        </div>
+        <div class="column is-one-quarter">
+          <div class="notification is-primary is-light">
+            <p class="heading">Total ventas</p>
+            <p class="title">${{ totalVentas.toLocaleString() }}</p>
+          </div>
+        </div>
       </div>
 
-      <b-table class="minimal-table mt-5 p-5" :data="ventas" :paginated="isPaginated" :per-page="perPage"
-        :bordered="true" :narrowed="true" :current-page.sync="currentPage" :pagination-simple="isPaginationSimple"
-        :pagination-position="paginationPosition" :default-sort-direction="defaultSortDirection"
-        :pagination-rounded="isPaginationRounded" :sort-icon="sortIcon" :sort-icon-size="sortIconSize"
-        aria-next-label="Next page" aria-previous-label="Previous page" aria-page-label="Page"
-        aria-current-label="Current page">
+      <b-table class="elegant-table mt-5 is-size-7" :data="ventas" :paginated="isPaginated" :per-page="perPage"
+        :current-page.sync="currentPage" :bordered="false" :striped="true" :hoverable="true" :mobile-cards="true">
         <b-table-column field="id" label="#" searchable sortable v-slot="props">
           {{ props.row.id }}
         </b-table-column>
@@ -103,6 +110,25 @@
         :logo="logo" v-if="mostrarTicket"></ticket>
       <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>
     </section>
+
+
+    <div class="box has-background-white-ter">
+      <p class="title is-4 has-text-weight-semibold has-text-grey-dark">
+        <b-icon icon="account-group" size="is-small"></b-icon>
+        Totales por usuario
+      </p>
+      <div class="tags are-medium">
+        <div v-for="usuario in ventasPorUsuario" :key="usuario.nombre" class="control">
+          <span class="tag is-rounded is-white is-medium">
+            <span class="icon">
+              <b-icon icon="account" size="is-small"></b-icon>
+            </span>
+            <span>{{ usuario.nombre }}</span>
+            <span class="tag is-primary is-light ml-2">${{ usuario.total.toLocaleString() }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
     <div class="is-pulled-right">
       <p class="control">
         <b-select v-model="perPage">
@@ -185,6 +211,32 @@ export default {
   },
 
   methods: {
+    calcularResumen() {
+      this.ventasHoy = this.calcularVentasHoy();
+      this.ventasSemana = this.calcularVentasSemana();
+      this.promedioVenta = this.calcularPromedioVenta();
+    },
+    calcularVentasHoy() {
+      const hoy = new Date().toISOString().substring(0, 10);
+      return this.ventas
+        .filter(v => v.fecha.substring(0, 10) === hoy)
+        .reduce((sum, v) => sum + parseFloat(v.total), 0);
+    },
+
+    calcularVentasSemana() {
+      const unaSemanaAtras = new Date();
+      unaSemanaAtras.setDate(unaSemanaAtras.getDate() - 7);
+
+      return this.ventas
+        .filter(v => new Date(v.fecha) >= unaSemanaAtras)
+        .reduce((sum, v) => sum + parseFloat(v.total), 0);
+    },
+
+    calcularPromedioVenta() {
+      return this.ventas.length > 0
+        ? this.totalVentas / this.ventas.length
+        : 0;
+    },
     recargar() {
       (this.fechasSeleccionadas = []), (this.filtros = {});
       this.obtenerVentas();
@@ -224,12 +276,10 @@ export default {
           this.ventasPorUsuario = resultado.ventasPorUsuario;
           this.usuarios = resultado.usuarios;
 
-          let total = 0;
-          this.ventas.forEach((venta) => {
-            total = parseFloat(total) + parseFloat(venta.total);
-          });
+          this.totalVentas = this.ventas.reduce((sum, venta) =>
+            sum + parseFloat(venta.total), 0);
 
-          this.totalVentas = total;
+          this.calcularResumen();
           this.cargando = false;
         }
       );
@@ -295,5 +345,53 @@ export default {
 
 .field.is-grouped .control {
   margin-right: 4px;
+}
+
+.elegant-table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+.elegant-table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.5px;
+  border: none !important;
+}
+
+.elegant-table tr:hover {
+  background-color: #f8f9fa !important;
+}
+
+.elegant-table td {
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+/* Efecto hover para botones */
+.button-hover-effect {
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.button-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el total */
+.total-badge {
+  font-size: 1.1em;
+  padding: 8px 15px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #c7b448, #c57429);
+  color: white;
+  box-shadow: 0 4px 10px rgba(72, 199, 116, 0.3);
 }
 </style>

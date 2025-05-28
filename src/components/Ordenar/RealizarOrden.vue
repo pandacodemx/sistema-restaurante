@@ -11,7 +11,7 @@
                     </div>
                 </div>
                 <b-button type="is-primary" icon-left="refresh" @click="crearMesas" :loading="cargando"
-                    class="refresh-button">
+                    class="refresh-button badge-new">
                     Actualizar
                 </b-button>
             </div>
@@ -47,8 +47,11 @@
 
             <!-- Grid de mesas -->
             <div class="mesas-grid">
-                <div class="mesa-card" v-for="mesa in mesasFiltradas" :key="mesa.mesa.idMesa"
-                    :class="{ 'mesa-ocupada': mesa.mesa.estado === 'ocupada', 'mesa-libre': mesa.mesa.estado === 'libre' }">
+                <div class="mesa-card" v-for="mesa in mesasFiltradas" :key="mesa.mesa.idMesa" :class="{
+                    'mesa-ocupada': mesa.mesa.estado === 'ocupada',
+                    'mesa-libre': mesa.mesa.estado === 'libre',
+                    'mesa-expandida': mesaExpandida === mesa.mesa.idMesa
+                }" @click="toggleMesaExpandida(mesa.mesa.idMesa)">
                     <div class="mesa-header">
                         <div>
                             <h3 class="mesa-title">Mesa #{{ mesa.mesa.idMesa }}</h3>
@@ -60,29 +63,22 @@
                             <span class="total-label">Total</span>
                             <span class="total-amount">${{ mesa.mesa.total }}</span>
                         </div>
+                        <b-icon
+                            :icon="mesaExpandida === mesa.mesa.idMesa ? 'chevron-double-down' : 'chevron-double-down'"
+                            class="expand-icon"></b-icon>
                     </div>
-
-                    <div class="mesa-details">
-                        <div v-if="mesa.mesa.atiende" class="detail-item">
-                            <b-icon icon="account" size="is-small"></b-icon>
-                            <span>{{ mesa.mesa.atiende }}</span>
-                        </div>
-                        <div v-if="mesa.mesa.cliente" class="detail-item">
-                            <b-icon icon="account-star" size="is-small"></b-icon>
-                            <span>{{ mesa.mesa.cliente }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Orden colapsable -->
-                    <b-collapse class="orden-collapse" animation="slide" v-if="mesa.mesa.estado === 'ocupada'">
-                        <template #trigger="props">
-                            <div class="collapse-trigger" :class="{ 'is-open': props.open }">
-                                <span>Ver orden ({{ mesa.insumos.length }} items)</span>
-                                <b-icon :icon="props.open ? 'chevron-up' : 'chevron-down'"></b-icon>
+                    <div class="mesa-expandible-content" v-if="mesaExpandida === mesa.mesa.idMesa">
+                        <div class="mesa-details">
+                            <div v-if="mesa.mesa.atiende" class="detail-item">
+                                <b-icon icon="account" size="is-small"></b-icon>
+                                <span>{{ mesa.mesa.atiende }}</span>
                             </div>
-                        </template>
-
-                        <div class="orden-content">
+                            <div v-if="mesa.mesa.cliente" class="detail-item">
+                                <b-icon icon="account-star" size="is-small"></b-icon>
+                                <span>{{ mesa.mesa.cliente }}</span>
+                            </div>
+                        </div>
+                        <div v-if="mesa.mesa.estado === 'ocupada'" class="orden-content">
                             <div class="table-container">
                                 <b-table :data="mesa.insumos" :checked-rows.sync="checkedRows"
                                     :is-row-checkable="(row) => row.estado !== 'entregado'" checkable
@@ -132,35 +128,34 @@
                                 </b-button>
                             </div>
                         </div>
-                    </b-collapse>
-
-                    <!-- Acciones -->
-                    <div class="mesa-actions">
-                        <!-- Mesa libre -->
-                        <b-button v-if="mesa.mesa.estado === 'libre'" type="is-primary" icon-left="plus"
-                            @click="ocuparMesa(mesa)" expanded rounded>
-                            Ocupar mesa
-                        </b-button>
-
-                        <!-- Mesa ocupada -->
-                        <div v-if="mesa.mesa.estado === 'ocupada'" class="action-buttons">
-                            <b-button type="is-info" icon-left="plus" @click="ocuparMesa(mesa)" rounded outlined>
-                                Agregar
+                        <!-- Acciones -->
+                        <div class="mesa-actions">
+                            <!-- Mesa libre -->
+                            <b-button v-if="mesa.mesa.estado === 'libre'" type="is-primary" icon-left="plus"
+                                @click="ocuparMesa(mesa)" expanded rounded>
+                                Ocupar mesa
                             </b-button>
 
-                            <b-button type="is-success" icon-left="cash" @click="cobrar(mesa)" rounded>
-                                Cobrar
-                            </b-button>
+                            <!-- Mesa ocupada -->
+                            <div v-if="mesa.mesa.estado === 'ocupada'" class="action-buttons">
+                                <b-button type="is-info" icon-left="plus" @click="ocuparMesa(mesa)" rounded outlined>
+                                    Agregar
+                                </b-button>
 
-                            <b-button type="is-warning" icon-left="check" @click="marcarInsumosEntregados(mesa)"
-                                :disabled="checkedRows.length === 0" rounded outlined>
-                                Entregar
-                            </b-button>
+                                <b-button type="is-success" icon-left="cash" @click="cobrar(mesa)" rounded>
+                                    Cobrar
+                                </b-button>
 
-                            <b-button type="is-danger" icon-left="close" @click="cancelarOrden(mesa.mesa.idMesa)"
-                                rounded outlined>
-                                Cancelar
-                            </b-button>
+                                <b-button type="is-warning" icon-left="check" @click="marcarInsumosEntregados(mesa)"
+                                    :disabled="checkedRows.length === 0" rounded outlined>
+                                    Entregar
+                                </b-button>
+
+                                <b-button type="is-danger" icon-left="close" @click="cancelarOrden(mesa.mesa.idMesa)"
+                                    rounded outlined>
+                                    Cancelar
+                                </b-button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -195,7 +190,8 @@ export default {
         insumosSeleccionados: [],
         filtroEstado: "todas",
         busqueda: "",
-        showDetails: null
+        showDetails: null,
+        mesaExpandida: null,
     }),
 
     computed: {
@@ -235,6 +231,15 @@ export default {
     },
 
     methods: {
+        toggleMesaExpandida(idMesa) {
+
+            if (this.mesaExpandida === idMesa) {
+                this.mesaExpandida = null;
+            } else {
+
+                this.mesaExpandida = idMesa;
+            }
+        },
         cancelarOrden(id) {
             this.$buefy.dialog.confirm({
                 title: `Cancelar orden Mesa #${id}`,
@@ -334,7 +339,7 @@ export default {
                 message: `
                     <div class="content">
                         <p><strong>Total a pagar:</strong></p>
-                        <p class="total-display">$${mesa.mesa.total}</p>
+                        <p class="has-text-danger">$${mesa.mesa.total}</p>
                     </div>
                 `,
                 inputAttrs: {
@@ -381,7 +386,7 @@ export default {
                                     message: `
                                         <div class="content">
                                             <p><strong>Cambio:</strong></p>
-                                            <p class="cambio-display">$${cambio}</p>
+                                            <p class="has-text-danger">$${cambio}</p>
                                         </div>
                                     `,
                                     confirmText: 'Finalizar',
@@ -489,18 +494,72 @@ export default {
     font-size: 1.5rem;
     font-weight: 700;
     display: block;
-    color: #3498db;
+    color: #189c9c;
 }
 
 .counter-label {
     font-size: 0.875rem;
-    color: #7f8c8d;
+    color: #000000;
 }
 
+/* Grid de mesas */
 .mesas-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+/* Mesa expandida */
+.mesa-expandida {
+    grid-column: 1 / -1;
+    /* Ocupa todas las columnas */
+    order: -1;
+    /* Mueve al principio del grid */
+    margin-bottom: 1.5rem;
+}
+
+/* Contenido expandible */
+.mesa-expandible-content {
+    padding: 0 1.25rem 1.25rem;
+    animation: fadeIn 0.3s ease;
+}
+
+
+.expand-icon {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mesa-card:not(.mesa-expandida):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .mesa-expandida {
+        margin-bottom: 1rem;
+    }
+
+    .mesa-header {
+        padding: 1rem;
+    }
+
+    .mesa-expandible-content {
+        padding: 0 1rem 1rem;
+    }
 }
 
 .mesa-card {
@@ -517,7 +576,7 @@ export default {
 }
 
 .mesa-ocupada {
-    border-top: 4px solid #ff3860;
+    border-top: 4px solid #f71643;
 }
 
 .mesa-libre {
@@ -655,6 +714,15 @@ export default {
 .details-content {
     font-size: 0.9rem;
     line-height: 1.6;
+}
+
+.badge-new {
+    font-size: 1.1em;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #48b8c7, #115f72);
+    color: white;
+    box-shadow: 0 4px 10px rgba(72, 199, 116, 0.3);
 }
 
 /* Estilos para móviles */
