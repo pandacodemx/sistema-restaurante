@@ -14,8 +14,8 @@
         </b-field>
 
         <div class="has-text-centered">
-            <b-button type="is-success" size="is-large" class="is-rounded" icon-left="check"
-                @click="registrar">Registrar</b-button>
+            <b-button type="is-success" size="is-large" class="is-rounded  total-badge" icon-left="check"
+                @click="registrar">Guardar Cambios</b-button>
         </div>
     </section>
 </template>
@@ -44,3 +44,13 @@ export default ({
     }
 })
 </script>
+<style>
+.total-badge {
+    font-size: 1.1em;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #195e43, #34c9a3);
+    color: white;
+    box-shadow: 0 4px 10px rgba(72, 199, 116, 0.3);
+}
+</style>

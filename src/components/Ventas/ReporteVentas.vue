@@ -13,8 +13,8 @@
         <div class="level-right">
           <div class="level-item">
             <div class="notification total-badge">
-              <p class="title is-4">Total ventas: <span class="has-text-weight-bold">${{ totalVentas.toLocaleString()
-              }}</span></p>
+              <p class="title is-4">Total ventas: <span class="has-text-weight-bold">${{ (totalVentas ||
+                0).toLocaleString() }}</span></p>
             </div>
           </div>
         </div>
@@ -24,28 +24,33 @@
         <div class="column is-one-quarter">
           <div class="notification is-info is-light">
             <p class="heading">Ventas hoy</p>
-            <p class="title">${{ ventasHoy.toLocaleString() }}</p>
+            <p class="title">${{ (ventasHoy || 0).toLocaleString() }}</p>
           </div>
         </div>
         <div class="column is-one-quarter">
           <div class="notification is-success is-light">
             <p class="heading">Ventas semana</p>
-            <p class="title">${{ ventasSemana.toLocaleString() }}</p>
+            <p class="title">${{ (ventasSemana || 0).toLocaleString() }}</p>
           </div>
         </div>
         <div class="column is-one-quarter">
           <div class="notification is-warning is-light">
             <p class="heading">Promedio/venta</p>
-            <p class="title">${{ promedioVenta.toLocaleString() }}</p>
+            <p class="title">${{ (promedioVenta || 0).toLocaleString() }}</p>
           </div>
         </div>
         <div class="column is-one-quarter">
           <div class="notification is-primary is-light">
             <p class="heading">Total ventas</p>
-            <p class="title">${{ totalVentas.toLocaleString() }}</p>
+            <p class="title">${{ (totalVentas || 0).toLocaleString() }}</p>
           </div>
         </div>
       </div>
+      <div v-if="ventas.length === 0 && !cargando" class="notification is-warning">
+        <b-icon icon="information" class="mr-2"></b-icon>
+        No se encontraron ventas para los filtros seleccionados.
+      </div>
+
 
       <b-table class="elegant-table mt-5 is-size-7" :data="ventas" :paginated="isPaginated" :per-page="perPage"
         :current-page.sync="currentPage" :bordered="false" :striped="true" :hoverable="true" :mobile-cards="true">
@@ -203,6 +208,9 @@ export default {
     currentPage: 1,
     perPage: 20,
     logo: null,
+    ventasHoy: 0,
+    ventasSemana: 0,
+    promedioVenta: 0,
   }),
 
   mounted() {
@@ -218,18 +226,20 @@ export default {
     },
     calcularVentasHoy() {
       const hoy = new Date().toISOString().substring(0, 10);
-      return this.ventas
-        .filter(v => v.fecha.substring(0, 10) === hoy)
-        .reduce((sum, v) => sum + parseFloat(v.total), 0);
+      const ventasHoy = this.ventas
+        .filter(v => v.fecha && v.fecha.substring(0, 10) === hoy)
+        .reduce((sum, v) => sum + parseFloat(v.total || 0), 0);
+      return ventasHoy || 0;
     },
 
     calcularVentasSemana() {
       const unaSemanaAtras = new Date();
       unaSemanaAtras.setDate(unaSemanaAtras.getDate() - 7);
 
-      return this.ventas
-        .filter(v => new Date(v.fecha) >= unaSemanaAtras)
-        .reduce((sum, v) => sum + parseFloat(v.total), 0);
+      const ventasSemana = this.ventas
+        .filter(v => v.fecha && new Date(v.fecha) >= unaSemanaAtras)
+        .reduce((sum, v) => sum + parseFloat(v.total || 0), 0);
+      return ventasSemana || 0;
     },
 
     calcularPromedioVenta() {
@@ -272,17 +282,24 @@ export default {
       this.cargando = true;
       HttpService.obtenerConDatos(this.filtros, "obtener_ventas.php").then(
         (resultado) => {
-          this.ventas = resultado.ventas;
-          this.ventasPorUsuario = resultado.ventasPorUsuario;
-          this.usuarios = resultado.usuarios;
+          this.ventas = resultado.ventas || [];
+          this.ventasPorUsuario = resultado.ventasPorUsuario || [];
+          this.usuarios = resultado.usuarios || [];
 
           this.totalVentas = this.ventas.reduce((sum, venta) =>
-            sum + parseFloat(venta.total), 0);
+            sum + parseFloat(venta.total || 0), 0);
 
           this.calcularResumen();
           this.cargando = false;
         }
-      );
+      ).catch(error => {
+        console.error("Error al obtener ventas:", error);
+        this.ventas = [];
+        this.ventasPorUsuario = [];
+        this.totalVentas = 0;
+        this.calcularResumen();
+        this.cargando = false;
+      });
     },
 
     obtenerDatos() {

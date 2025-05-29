@@ -5,7 +5,81 @@
                 <h1>Bienvenido! <b>{{ nombreUsuario }}</b> </h1>
                 <small>Sistema para restaurantes V1.0 </small>
             </div>
+            <hr>
+            <div class="columns is-multiline">
+                <div class="column is-6">
+                    <div class="box-welcome">
+                        <div class="title is-4 has-text-grey ">
+                            <b-icon icon="food-fork-drink"></b-icon>
+                            Insumos más vendidos
 
+                            <b-field class="is-pulled-right">
+                                <b-select v-model="limiteSeleccionado" @change.native="busquedaAvanzada('limite')"
+                                    expanded>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                </b-select>
+                            </b-field>
+                        </div>
+
+                        <b-table :data="insumosMasVendidos" :bordered="true" :striped="true" class="is-size-7">
+
+                            <b-table-column field="icono" label="" v-slot="props">
+                                <b-icon icon="noodles" size="is-small" type="is-info"
+                                    v-if="props.row.tipo === 'PLATILLO'">
+                                </b-icon>
+
+                                <b-icon icon="cup" size="is-small" type="is-success" v-if="props.row.tipo === 'BEBIDA'">
+                                </b-icon>
+                            </b-table-column>
+                            <b-table-column field="nombre" label="Nombre" v-slot="props">
+                                {{ props.row.nombre }}
+                            </b-table-column>
+                            <b-table-column field="categoria" label="Categoria" v-slot="props">
+                                {{ props.row.categoria }}
+                            </b-table-column>
+                            <b-table-column field="total" label="Total" v-slot="props">
+                                ${{ props.row.total }}
+                            </b-table-column>
+                            <b-table-column field="progreso" label="Progreso" v-slot="props">
+                                <b-progress :value="props.row.progreso" show-value format="percent" :type="{
+                                    'is-success': props.row.progreso >= 90,
+                                    'is-info': props.row.progreso >= 70 && props.row.progreso < 90,
+                                    'is-danger': props.row.progreso < 70
+                                }">
+                                </b-progress>
+                            </b-table-column>
+                        </b-table>
+                    </div>
+                </div>
+                <div class="column is-6">
+                    <div class="box-welcome">
+                        <p class="title is-4 has-text-grey ">
+                            <b-icon icon="table-furniture"></b-icon>
+                            Mesas más ocupadas
+                        </p>
+                        <b-table :data="totalesPorMesa" :bordered="true" :striped="true" class="is-size-7">
+                            <b-table-column field="idMesa" label="Mesa" v-slot="props">
+                                Mesa #{{ props.row.idMesa }}
+                            </b-table-column>
+                            <b-table-column field="total" label="Total" v-slot="props">
+                                ${{ props.row.total }}
+                            </b-table-column>
+                            <b-table-column field="progreso" label="Progreso" v-slot="props">
+                                <b-progress :value="props.row.progreso" show-value format="percent" :type="{
+                                    'is-success': props.row.progreso >= 90,
+                                    'is-info': props.row.progreso >= 70 && props.row.progreso < 90,
+                                    'is-danger': props.row.progreso < 70
+                                }">
+                                </b-progress>
+                            </b-table-column>
+                        </b-table>
+                    </div>
+                </div>
+            </div>
             <div class="columns is-multiline">
                 <div class="column is-one-third">
                     <div class="box-welcome">
@@ -55,6 +129,9 @@
                     </div>
                 </div>
             </div>
+            <br>
+            <hr>
+
             <div class="box-welcome">
                 <p class="title is-4 has-text-grey ">
                     <b-icon icon="calendar-month"></b-icon>
@@ -72,81 +149,6 @@
                 </p>
                 <div id="contenedor-mes">
                     <canvas id="grafica-mes"></canvas>
-                </div>
-            </div>
-            <br>
-            <div class="columns is-multiline">
-                <div class="column is-6">
-                    <div class="box-welcome">
-                        <div class="title is-4 has-text-grey ">
-                            <b-icon icon="food-fork-drink"></b-icon>
-                            Insumos más vendidos
-
-                            <b-field class="is-pulled-right">
-                                <b-select v-model="limiteSeleccionado" @change.native="busquedaAvanzada('limite')"
-                                    expanded>
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="15">15</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                </b-select>
-                            </b-field>
-                        </div>
-
-                        <b-table :data="insumosMasVendidos" :bordered="true" :striped="true">
-
-                            <b-table-column field="icono" label="" v-slot="props">
-                                <b-icon icon="noodles" size="is-small" type="is-info"
-                                    v-if="props.row.tipo === 'PLATILLO'">
-                                </b-icon>
-
-                                <b-icon icon="cup" size="is-small" type="is-success" v-if="props.row.tipo === 'BEBIDA'">
-                                </b-icon>
-                            </b-table-column>
-                            <b-table-column field="nombre" label="Nombre" v-slot="props">
-                                {{ props.row.nombre }}
-                            </b-table-column>
-                            <b-table-column field="categoria" label="Categoria" v-slot="props">
-                                {{ props.row.categoria }}
-                            </b-table-column>
-                            <b-table-column field="total" label="Total" v-slot="props">
-                                ${{ props.row.total }}
-                            </b-table-column>
-                            <b-table-column field="progreso" label="Progreso" v-slot="props">
-                                <b-progress :value="props.row.progreso" show-value format="percent" :type="{
-                                    'is-success': props.row.progreso >= 90,
-                                    'is-info': props.row.progreso >= 70 && props.row.progreso < 90,
-                                    'is-danger': props.row.progreso < 70
-                                }">
-                                </b-progress>
-                            </b-table-column>
-                        </b-table>
-                    </div>
-                </div>
-                <div class="column is-6">
-                    <div class="box-welcome">
-                        <p class="title is-4 has-text-grey ">
-                            <b-icon icon="table-furniture"></b-icon>
-                            Mesas más ocupadas
-                        </p>
-                        <b-table :data="totalesPorMesa" :bordered="true" :striped="true">
-                            <b-table-column field="idMesa" label="Mesa" v-slot="props">
-                                Mesa #{{ props.row.idMesa }}
-                            </b-table-column>
-                            <b-table-column field="total" label="Total" v-slot="props">
-                                ${{ props.row.total }}
-                            </b-table-column>
-                            <b-table-column field="progreso" label="Progreso" v-slot="props">
-                                <b-progress :value="props.row.progreso" show-value format="percent" :type="{
-                                    'is-success': props.row.progreso >= 90,
-                                    'is-info': props.row.progreso >= 70 && props.row.progreso < 90,
-                                    'is-danger': props.row.progreso < 70
-                                }">
-                                </b-progress>
-                            </b-table-column>
-                        </b-table>
-                    </div>
                 </div>
             </div>
             <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>

@@ -1,10 +1,16 @@
 <template>
-    <div class="bg-full">
+    <div class="bg-full p-6">
         <section>
-            <div class="is-flex is-align-items-center mb-4">
-                <b-icon icon="basket" type="is-primary" size="is-medium" class="mr-2"></b-icon>
-                <p class="title is-4 mb-0">Editar insumo</p>
-            </div>
+            <nav class="level is-mobile">
+                <div class="level-left">
+                    <div class="level-item">
+                        <p class="title is-3 has-text-weight-bold has-text-primary">
+                            <b-icon icon="basket" size="is-large" class="mr-3"></b-icon>
+                            Editar insumo
+                        </p>
+                    </div>
+                </div>
+            </nav>
             <b-breadcrumb align="is-left">
                 <b-breadcrumb-item tag='router-link' to="/">Inicio</b-breadcrumb-item>
                 <b-breadcrumb-item tag='router-link' to="/insumos">Insumos</b-breadcrumb-item>

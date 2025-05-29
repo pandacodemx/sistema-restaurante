@@ -109,7 +109,7 @@
                                                 <p><strong>Características:</strong> {{ props.row.caracteristicas ||
                                                     'N/A' }}</p>
                                                 <p><strong>Notas:</strong> {{ props.row.notas || 'Sin notas adicionales'
-                                                }}</p>
+                                                    }}</p>
                                             </div>
                                         </article>
                                     </template>
@@ -138,7 +138,7 @@
 
                             <!-- Mesa ocupada -->
                             <div v-if="mesa.mesa.estado === 'ocupada'" class="action-buttons">
-                                <b-button type="is-info" icon-left="plus" @click="ocuparMesa(mesa)" rounded outlined>
+                                <b-button type="is-info" icon-left="plus" @click="ocuparMesa(mesa)" rounded>
                                     Agregar
                                 </b-button>
 
@@ -147,12 +147,12 @@
                                 </b-button>
 
                                 <b-button type="is-warning" icon-left="check" @click="marcarInsumosEntregados(mesa)"
-                                    :disabled="checkedRows.length === 0" rounded outlined>
+                                    :disabled="checkedRows.length === 0" rounded>
                                     Entregar
                                 </b-button>
 
                                 <b-button type="is-danger" icon-left="close" @click="cancelarOrden(mesa.mesa.idMesa)"
-                                    rounded outlined>
+                                    rounded>
                                     Cancelar
                                 </b-button>
                             </div>

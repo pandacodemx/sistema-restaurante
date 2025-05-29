@@ -1,58 +1,90 @@
 <template>
-    <div class="bg-full p-6">
-        <section>
-            <ul v-if="errores.length > 0">
-                <li class="has-text-danger has-text-centered" v-for="error in errores" :key="error">{{ error }}</li>
-            </ul>
-            <b-field label="Tipo">
-                <b-select v-model="insumo.tipo" @change.native="obtenerCategorias">
-                    <option value="" disabled selected>Selecciona el tipo de insumo</option>
-                    <option value="PLATILLO">
-                        Platillo
-                    </option>
-                    <option value="BEBIDA">
-                        Bebida
-                    </option>
-                </b-select>
-            </b-field>
+    <div class="form-container p-5">
+        <section class="form-card">
+            <!-- Mensajes de error mejorados -->
+            <div v-if="errores.length > 0" class="notification is-danger is-light">
+                <b-icon icon="alert-circle" class="mr-2"></b-icon>
+                <span v-for="error in errores" :key="error">{{ error }}<br></span>
+            </div>
 
-            <b-field label="Código">
-                <b-input type="text" placeholder="Código insumo" v-model="insumo.codigo"></b-input>
-            </b-field>
+            <div class="columns is-multiline">
+                <!-- Columna izquierda -->
+                <div class="column is-half">
+                    <b-field label="Tipo de insumo" label-position="on-border" class="has-text-weight-semibold">
+                        <b-select v-model="insumo.tipo" @change.native="obtenerCategorias" expanded>
+                            <option value="" disabled selected>Selecciona el tipo</option>
+                            <option value="PLATILLO">Platillo</option>
+                            <option value="BEBIDA">Bebida</option>
+                        </b-select>
+                    </b-field>
 
-            <b-field label="Nombre">
-                <b-input type="text" placeholder="Nombre" v-model="insumo.nombre"></b-input>
-            </b-field>
+                    <b-field label="Código" label-position="on-border">
+                        <b-input type="text" placeholder="Ej: PLAT-001" v-model="insumo.codigo"
+                            icon="barcode"></b-input>
+                    </b-field>
 
-            <b-field label="Descripción">
-                <b-input maxlength="200" type="textarea" placeholder="Detalles del insumo"
-                    v-model="insumo.descripcion"></b-input>
-            </b-field>
+                    <b-field label="Nombre" label-position="on-border">
+                        <b-input type="text" placeholder="Nombre del producto" v-model="insumo.nombre"
+                            icon="tag"></b-input>
+                    </b-field>
 
-            <b-field label="Categoría">
-                <b-select v-model="insumo.categoria">
-                    <option value="" selected disabled>Selecciona una categoría</option>
-                    <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
-                        {{ categoria.nombre }}
-                    </option>
-                </b-select>
-            </b-field>
+                    <b-field label="Descripción" label-position="on-border">
+                        <b-input maxlength="200" type="textarea" placeholder="Detalles del producto"
+                            v-model="insumo.descripcion" icon="text-box"></b-input>
+                    </b-field>
+                </div>
 
-            <b-field label="Imagen del insumo">
-                <input type="file" @change="onFileChange" accept="image/*" />
-            </b-field>
-            
+                <!-- Columna derecha -->
+                <div class="column is-half">
+                    <b-field label="Categoría" label-position="on-border">
+                        <b-select v-model="insumo.categoria" expanded :disabled="!insumo.tipo">
+                            <option value="" selected disabled>Selecciona una categoría</option>
+                            <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
+                                {{ categoria.nombre }}
+                            </option>
+                        </b-select>
+                    </b-field>
 
-            <b-field label="Precio">
-                <b-input type="number" placeholder="Precio de venta" v-model="insumo.precio"></b-input>
-            </b-field>
-            <div class="has-text-centered">
-                <b-button type="is-success is-bold" size="is-large" class="is-rounded" icon-left="check"
-                    @click="registrar">Guardar</b-button>
+                    <b-field label="Precio" label-position="on-border">
+                        <b-input type="number" placeholder="0.00" v-model="insumo.precio" icon="currency-usd">
+                            <template #left>
+                                <span class="icon is-left">$</span>
+                            </template>
+                        </b-input>
+                    </b-field>
+
+                    <b-field label="Imagen del producto" label-position="on-border" class="file-upload-field">
+                        <div class="file has-name is-boxed">
+                            <label class="file-label">
+                                <input class="file-input" type="file" @change="onFileChange" accept="image/*">
+                                <span class="file-cta">
+                                    <span class="file-icon">
+                                        <b-icon icon="image"></b-icon>
+                                    </span>
+                                    <span class="file-label">
+                                        Seleccionar imagen...
+                                    </span>
+                                </span>
+                                <span class="file-name" v-if="imagen">
+                                    {{ imagen.name }}
+                                </span>
+                            </label>
+                        </div>
+                        <p class="help">Formatos: JPG, PNG (Máx. 2MB)</p>
+                    </b-field>
+                </div>
+            </div>
+
+            <div class="has-text-centered mt-6">
+                <b-button type="is-success" size="is-medium" class="is-rounded submit-button" icon-left="content-save"
+                    @click="registrar" :loading="cargando">
+                    Guardar Insumo
+                </b-button>
             </div>
         </section>
     </div>
 </template>
+
 <script>
 import Utiles from '../../Servicios/Utiles'
 import HttpService from '../../Servicios/HttpService'
@@ -64,18 +96,21 @@ export default {
     data: () => ({
         errores: [],
         categorias: [],
-        imagen: null
+        imagen: null,
+        cargando: false
     }),
 
-
-
     methods: {
-
         onFileChange(event) {
             const file = event.target.files[0]
+            if (file && file.size > 2 * 1024 * 1024) {
+                this.errores = ["La imagen no debe exceder los 2MB"]
+                return
+            }
             this.imagen = file
         },
-        registrar() {
+
+        async registrar() {
             let datos = {
                 tipo: this.insumo.tipo,
                 codigo: this.insumo.codigo,
@@ -84,30 +119,98 @@ export default {
                 categoria: this.insumo.categoria,
                 precio: this.insumo.precio
             }
+
             this.errores = Utiles.validar(datos)
             if (this.errores.length > 0) return
 
-            // FormData para subir la imagen
-            const formData = new FormData()
-            for (let key in datos) {
-                formData.append(key, datos[key])
-            }
+            this.cargando = true
 
-            if (this.imagen) {
-                formData.append('imagen', this.imagen)
-            }
+            try {
+                const formData = new FormData()
+                for (let key in datos) {
+                    formData.append(key, datos[key])
+                }
 
-            this.$emit("registrado", formData)
+                if (this.imagen) {
+                    formData.append('imagen', this.imagen)
+                }
+
+                this.$emit("registrado", formData)
+            } catch (error) {
+                console.error("Error al registrar:", error)
+                this.errores = ["Ocurrió un error al guardar el insumo"]
+            } finally {
+                this.cargando = false
+            }
         },
 
         obtenerCategorias() {
+            if (!this.insumo.tipo) return
 
             HttpService.obtenerConDatos(this.insumo.tipo, "obtener_categorias_tipo.php")
                 .then(resultado => {
                     this.categorias = resultado
+                    this.insumo.categoria = "" // Resetear categoría al cambiar tipo
                 })
-
         }
     }
 }
 </script>
+
+<style scoped>
+.form-container {
+    background-color: #f5f7fa;
+    min-height: 100%;
+}
+
+.form-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.field-label {
+    color: #4a4a4a;
+    font-weight: 500;
+}
+
+.file-upload-field {
+    margin-top: 1.5rem;
+}
+
+.file-cta {
+    background-color: #f5f7fa;
+    border-color: #dbdbdb;
+}
+
+.file-name {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.submit-button {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 209, 178, 0.25);
+}
+
+/* Mejora para los selects */
+.select:not(.is-multiple):not(.is-loading)::after {
+    border-color: #48c774;
+}
+
+/* Estilo para campos requeridos */
+.required-field::after {
+    content: " *";
+    color: #ff3860;
+}
+</style>

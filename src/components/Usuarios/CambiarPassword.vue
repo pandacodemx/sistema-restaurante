@@ -181,7 +181,7 @@ export default {
                 title: "Confirmar cambio de contraseña",
                 message: `
                     <div class="content">
-                        <p>Estás a punto de cambiar tu contraseña.</p>
+                        <p class="has-text-danger" >Estás a punto de cambiar tu contraseña.</p>
                         <p class="has-text-danger has-text-weight-bold">
                             <b-icon icon="alert"></b-icon> Serás desconectado y deberás iniciar sesión nuevamente.
                         </p>
