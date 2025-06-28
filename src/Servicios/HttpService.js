@@ -11,7 +11,7 @@ const HttpService = {
             "Content-Type": "application/json",
           },
     });
-  
+
     const resultado = await respuesta.json();
     return resultado;
   },
@@ -22,7 +22,7 @@ const HttpService = {
     });
     let resultado = await respuesta.json();
     return resultado;
-  }, 
+  },
 
   async obtenerConDatos(datos, ruta) {
     const respuesta = await fetch(RUTA_GLOBAL + ruta, {

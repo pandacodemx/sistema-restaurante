@@ -507,17 +507,17 @@ function registrarInsumo($insumo)
 
 function registrarInsumoP($insumo)
 {
-    $bd = conectarBaseDatos();
-    $sentencia = $bd->prepare("INSERT INTO insumos (codigo, nombre, descripcion, precio, tipo, categoria, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    return $sentencia->execute([
-        $insumo->codigo,
-        $insumo->nombre,
-        $insumo->descripcion,
-        $insumo->precio,
-        $insumo->tipo,
-        $insumo->categoria,
-        $insumo->imagen // puede ser null si no se subió imagen
-    ]);
+	$bd = conectarBaseDatos();
+	$sentencia = $bd->prepare("INSERT INTO insumos (codigo, nombre, descripcion, precio, tipo, categoria, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)");
+	return $sentencia->execute([
+		$insumo->codigo,
+		$insumo->nombre,
+		$insumo->descripcion,
+		$insumo->precio,
+		$insumo->tipo,
+		$insumo->categoria,
+		$insumo->imagen
+	]);
 }
 
 function obtenerCategoriasPorTipo($tipo)

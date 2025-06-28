@@ -29,8 +29,8 @@
                     </b-field>
 
                     <b-field label="Descripción" label-position="on-border">
-                        <b-input maxlength="200" type="textarea" placeholder="Detalles del producto"
-                            v-model="insumo.descripcion" icon="text-box"></b-input>
+                        <b-input type="textarea" maxlength="200" placeholder="Detalles del producto"
+                            v-model="insumo.descripcion"></b-input>
                     </b-field>
                 </div>
 

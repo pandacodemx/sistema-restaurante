@@ -44,7 +44,7 @@
                 <b-table-column field="acciones" label="Acciones" v-slot="props">
                     <div class="field is-grouped">
                         <p class="control">
-                            <b-button type="is-danger  is-light" icon-left="delete-circle" size="is-small"
+                            <b-button type="is-danger is-light" icon-left="delete-circle" size="is-small"
                                 title="Eliminar" @click="eliminar(props.row)">
                                 Eliminar
                             </b-button>

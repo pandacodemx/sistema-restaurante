@@ -93,6 +93,7 @@ body,
   margin: 0;
   padding: 0;
   background-color: #696868;
+  height: 100%;
   color: #fff;
 }
 </style>

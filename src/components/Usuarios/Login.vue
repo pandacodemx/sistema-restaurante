@@ -144,6 +144,7 @@ export default {
 
 .box {
     background: rgba(255, 255, 255, 0.582);
+    transition: box-shadow 0.2s ease;
     backdrop-filter: blur(5px);
     border-radius: 15px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -151,8 +152,8 @@ export default {
 }
 
 .box:hover {
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Sombra sutil */
 }
 
 .b-input {

@@ -117,7 +117,7 @@
     </section>
 
 
-    <div class="box has-background-white-ter">
+    <div class="has-background-white-ter">
       <p class="title is-4 has-text-weight-semibold has-text-grey-dark">
         <b-icon icon="account-group" size="is-small"></b-icon>
         Totales por usuario

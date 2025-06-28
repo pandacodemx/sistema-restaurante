@@ -106,10 +106,9 @@
                                     <template #detail="props">
                                         <article class="details-box">
                                             <div class="details-content">
-                                                <p><strong>Características:</strong> {{ props.row.caracteristicas ||
+                                                <p><strong>Comentarios acerca de la orden:</strong> {{
+                                                    props.row.caracteristicas ||
                                                     'N/A' }}</p>
-                                                <p><strong>Notas:</strong> {{ props.row.notas || 'Sin notas adicionales'
-                                                    }}</p>
                                             </div>
                                         </article>
                                     </template>
@@ -138,21 +137,23 @@
 
                             <!-- Mesa ocupada -->
                             <div v-if="mesa.mesa.estado === 'ocupada'" class="action-buttons">
-                                <b-button type="is-info" icon-left="plus" @click="ocuparMesa(mesa)" rounded>
+                                <b-button class="has-text-weight-semibold" type="is-info" icon-left="plus"
+                                    @click="ocuparMesa(mesa)" rounded>
                                     Agregar
                                 </b-button>
 
-                                <b-button type="is-success" icon-left="cash" @click="cobrar(mesa)" rounded>
+                                <b-button class="has-text-weight-semibold" type="is-success" icon-left="cash"
+                                    @click="cobrar(mesa)" rounded>
                                     Cobrar
                                 </b-button>
 
-                                <b-button type="is-warning" icon-left="check" @click="marcarInsumosEntregados(mesa)"
-                                    :disabled="checkedRows.length === 0" rounded>
+                                <b-button class="has-text-weight-semibold" type="is-warning" icon-left="check"
+                                    @click="marcarInsumosEntregados(mesa)" :disabled="checkedRows.length === 0" rounded>
                                     Entregar
                                 </b-button>
 
-                                <b-button type="is-danger" icon-left="close" @click="cancelarOrden(mesa.mesa.idMesa)"
-                                    rounded>
+                                <b-button class="has-text-weight-semibold" type="is-danger" icon-left="close"
+                                    @click="cancelarOrden(mesa.mesa.idMesa)" rounded>
                                     Cancelar
                                 </b-button>
                             </div>
