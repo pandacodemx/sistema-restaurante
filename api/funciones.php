@@ -286,7 +286,9 @@ function crearInsumosMesa($datos)
 					"precio" => $temp[3],
 					"caracteristicas" => $temp[4],
 					"cantidad" => $temp[5],
-					"estado" => $temp[6]
+					"estado" => $temp[6],
+					"tipo" => $temp[7]
+
 				];
 			}
 			array_push($insumos, $insumoTemp);

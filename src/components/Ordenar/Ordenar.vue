@@ -219,6 +219,7 @@ export default {
           caracteristicas: "",
           cantidad: 1,
           estado: "pendiente",
+          tipo: insumo.tipo
         });
       }
 

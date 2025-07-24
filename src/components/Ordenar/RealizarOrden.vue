@@ -55,14 +55,22 @@
                     <div class="mesa-header">
                         <div>
                             <h3 class="mesa-title">Mesa #{{ mesa.mesa.idMesa }}</h3>
-                            <b-tag :type="mesa.mesa.estado === 'ocupada' ? 'is-danger' : 'is-success'" rounded>
-                                {{ mesa.mesa.estado === 'ocupada' ? 'Ocupada' : 'Libre' }}
-                            </b-tag>
+                            <div v-if="mesa.mesa.total" class="mesa-total">
+                                <span class="total-label">Total</span>
+                                <span class="total-amount">${{ mesa.mesa.total }}</span>
+                            </div>
+                            <hr>
+                            <div class="tags-estado">
+                                <b-tag :type="mesa.mesa.estado === 'ocupada' ? 'is-danger' : 'is-success'" rounded>
+                                    🧑{{ mesa.mesa.estado === 'ocupada' ? 'Ocupada' : 'Libre' }}
+                                </b-tag>
+                                <b-tag v-if="mesa.insumos.some(i => i.estado === 'listo')" type="is-warning" rounded
+                                    class="ml-2">
+                                    🧑‍🍳 Listo entrega
+                                </b-tag>
+                            </div>
                         </div>
-                        <div v-if="mesa.mesa.total" class="mesa-total">
-                            <span class="total-label">Total</span>
-                            <span class="total-amount">${{ mesa.mesa.total }}</span>
-                        </div>
+
                         <b-icon
                             :icon="mesaExpandida === mesa.mesa.idMesa ? 'chevron-double-down' : 'chevron-double-down'"
                             class="expand-icon"></b-icon>
@@ -88,21 +96,44 @@
 
 
                                     <b-table-column field="nombre" label="Producto" v-slot="props">
-                                        <span class="product-name">{{ props.row.nombre }}</span>
+                                        <span class="product-name">
+                                            {{ props.row.nombre }}
+                                            <b-tag icon="information-outline" type="is-info" size="is-small" rounded
+                                                v-if="props.row.caracteristicas">
+                                                Detalles
+                                            </b-tag>
+                                        </span>
                                     </b-table-column>
+
 
                                     <b-table-column field="cantidad" label="Cant." v-slot="props" centered width="100">
                                         {{ props.row.cantidad }} × ${{ props.row.precio }}
                                     </b-table-column>
 
                                     <b-table-column field="estado" label="Estado" v-slot="props" centered width="140">
-                                        <b-tag :type="props.row.estado === 'entregado' ? 'is-success' : 'is-danger'"
-                                            rounded class="status-tag">
-                                            <b-icon :icon="props.row.estado === 'entregado' ? 'check' : 'clock'"
-                                                size="is-small"></b-icon>
-                                            {{ props.row.estado === 'entregado' ? 'Entregado' : 'Pendiente' }}
+                                        <b-tag :type="{
+                                            'entregado': 'is-success',
+                                            'listo': 'is-warning',
+                                            'preparando': 'is-info',
+                                            'pendiente': 'is-danger'
+                                        }[props.row.estado] || 'is-dark'" rounded class="status-tag">
+                                            <b-icon :icon="{
+                                                'entregado': 'check',
+                                                'listo': 'check-circle-outline',
+                                                'preparando': 'chef-hat',
+                                                'pendiente': 'clock'
+                                            }[props.row.estado] || 'help-circle'" size="is-small"></b-icon>
+                                            {{
+                                                {
+                                                    'entregado': 'Entregado',
+                                                    'listo': 'Listo',
+                                                    'preparando': 'Preparando',
+                                                    'pendiente': 'Pendiente'
+                                                }[props.row.estado] || 'Desconocido'
+                                            }}
                                         </b-tag>
                                     </b-table-column>
+
 
                                     <template #detail="props">
                                         <article class="details-box">
@@ -194,6 +225,7 @@ export default {
         busqueda: "",
         showDetails: null,
         mesaExpandida: null,
+        autoActualizar: null,
     }),
 
     computed: {
@@ -230,8 +262,15 @@ export default {
     mounted() {
         this.crearMesas();
         this.obtenerDatos();
-    },
 
+        this.autoActualizar = setInterval(() => {
+            this.crearMesas();
+            this.obtenerDatos();
+        }, 10000);
+    },
+    beforeDestroy() {
+        clearInterval(this.autoActualizar);
+    },
     methods: {
         toggleInsumoDetalles(insumo) {
             this.showDetails = this.showDetails === insumo.id ? null : insumo.id;
@@ -310,14 +349,45 @@ export default {
 
         marcarInsumosEntregados(mesa) {
             this.cargando = true;
-            const insumos = mesa.insumos.map(insumo => {
+
+            let insumosActualizados = [];
+            let errores = [];
+
+            mesa.insumos.forEach(insumo => {
                 const estaMarcado = this.checkedRows.some(m => m.id === insumo.id);
-                return estaMarcado ? { ...insumo, estado: "entregado" } : insumo;
+
+                if (estaMarcado) {
+                    if (insumo.tipo === "BEBIDA") {
+                        insumosActualizados.push({ ...insumo, estado: "entregado" });
+                    } else if (insumo.tipo === "PLATILLO") {
+                        if (insumo.estado === "listo") {
+                            insumosActualizados.push({ ...insumo, estado: "entregado" });
+                        } else {
+                            errores.push(insumo.nombre);
+                            insumosActualizados.push(insumo);
+                        }
+                    } else {
+
+                        insumosActualizados.push(insumo);
+                    }
+                } else {
+                    insumosActualizados.push(insumo);
+                }
             });
+
+            if (errores.length > 0) {
+                this.$buefy.toast.open({
+                    message: `Los siguientes platillos no están listos y no pueden ser entregados: ${errores.join(", ")}. Solo cocina puede marcarlos como "listo".`,
+                    type: "is-warning",
+                    duration: 7000,
+                    queue: false,
+                    icon: "alert"
+                });
+            }
 
             const payload = {
                 id: mesa.mesa.idMesa,
-                insumos: insumos,
+                insumos: insumosActualizados,
                 total: mesa.mesa.total,
                 atiende: mesa.mesa.atiende,
                 idUsuario: mesa.mesa.idUsuario,
@@ -328,7 +398,7 @@ export default {
                 .then(resultado => {
                     if (resultado) {
                         this.$buefy.toast.open({
-                            message: 'Productos marcados como entregados',
+                            message: 'Productos válidos marcados como entregados',
                             type: 'is-success',
                             icon: 'check-circle-outline'
                         });
@@ -432,6 +502,11 @@ export default {
 </script>
 
 <style scoped>
+.tags-estado {
+    display: flex;
+    flex-direction: row;
+}
+
 .dashboard-container {
     background-color: #f8f9fa;
     min-height: 100vh;
@@ -701,8 +776,9 @@ export default {
 }
 
 .product-name {
-    font-weight: 500;
-    color: #363636;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .status-tag {
