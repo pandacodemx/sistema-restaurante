@@ -79,12 +79,13 @@
                             </div>
                         </div>
                         <div v-if="mesa.mesa.estado === 'ocupada'" class="orden-content">
-                            <div class="table-container">
+                            <div class="table-container" @click.stop>
                                 <b-table :data="mesa.insumos" :checked-rows.sync="checkedRows"
                                     :is-row-checkable="(row) => row.estado !== 'entregado'" checkable
                                     checkbox-position="left" checkbox-type="is-primary" striped hoverable detailed
-                                    detail-key="id" @details-open="(row) => showDetails = row.id" mobile-cards
-                                    :paginated="mesa.insumos.length > 5" per-page="5">
+                                    detail-key="id" mobile-cards :paginated="mesa.insumos.length > 5" per-page="5"
+                                    row-clickable @row-click="toggleInsumoDetalles">
+
 
                                     <b-table-column field="nombre" label="Producto" v-slot="props">
                                         <span class="product-name">{{ props.row.nombre }}</span>
@@ -232,6 +233,10 @@ export default {
     },
 
     methods: {
+        toggleInsumoDetalles(insumo) {
+            this.showDetails = this.showDetails === insumo.id ? null : insumo.id;
+        }
+        ,
         toggleMesaExpandida(idMesa) {
 
             if (this.mesaExpandida === idMesa) {
