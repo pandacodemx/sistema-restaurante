@@ -25,7 +25,7 @@ const DIAS = [
 
 const Utiles = {
   generarUrlImagen(imagen) {
-    return "http://localhost/sistema-restaurante/api" + imagen;
+    return "http://localhost/sistema-restaurante/api/" + imagen;
   },
   generarGrafica(array, contenedor, grafica, id) {
     this.resetearGrafica(contenedor, grafica, id);

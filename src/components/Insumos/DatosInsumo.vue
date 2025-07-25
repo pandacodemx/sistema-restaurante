@@ -70,8 +70,13 @@
                                 </span>
                             </label>
                         </div>
-                        <p class="help">Formatos: JPG, PNG (Máx. 2MB)</p>
+
                     </b-field>
+                    <p class="help">Formatos: JPG, PNG (Máx. 2MB)</p>
+                    <div v-if="imagenPreview" class="mt-4 has-text-centered">
+                        <p class="has-text-weight-semibold mb-2">Vista previa:</p>
+                        <img :src="imagenPreview" alt="Preview" style="max-height: 200px; border-radius: 8px;">
+                    </div>
                 </div>
             </div>
 
@@ -97,10 +102,21 @@ export default {
         errores: [],
         categorias: [],
         imagen: null,
+        imagenPreview: null,
         cargando: false
     }),
 
+    mounted() {
+        if (this.insumo.imagen && typeof this.insumo.imagen === 'string') {
+            this.imagenPreview = Utiles.generarUrlImagen(this.insumo.imagen)
+        }
+
+    },
     methods: {
+        generarUrlImagen(nombreArchivo) {
+            return "http://localhost/sistema-restaurante/api/" + nombreArchivo;
+        },
+
         onFileChange(event) {
             const file = event.target.files[0]
             if (file && file.size > 2 * 1024 * 1024) {
@@ -108,10 +124,16 @@ export default {
                 return
             }
             this.imagen = file
+            const reader = new FileReader()
+            reader.onload = e => {
+                this.imagenPreview = e.target.result
+            }
+            reader.readAsDataURL(file)
         },
 
         async registrar() {
             let datos = {
+                id: this.insumo.id,
                 tipo: this.insumo.tipo,
                 codigo: this.insumo.codigo,
                 nombre: this.insumo.nombre,
@@ -153,7 +175,17 @@ export default {
                     this.insumo.categoria = "" // Resetear categoría al cambiar tipo
                 })
         }
-    }
+    },
+    watch: {
+        insumo: {
+            immediate: true,
+            handler(nuevo) {
+                if (nuevo && nuevo.imagen && !this.imagen) {
+                    this.imagenPreview = this.generarUrlImagen(nuevo.imagen);
+                }
+            }
+        }
+    },
 }
 </script>
 

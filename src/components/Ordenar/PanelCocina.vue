@@ -1,5 +1,5 @@
 <template>
-    <section class="section">
+    <section class="section kitchen-background">
         <div class="container">
             <h1 class="title has-text-centered mb-5 has-text-white">🧑‍🍳 Panel de Cocina</h1>
 
@@ -53,6 +53,11 @@
                                         @click="cambiarEstadoInsumo(props.row, mesa, 'pendiente')"
                                         icon-left="arrow-left" class="mb-1">
                                         Volver a pendiente
+                                    </b-button>
+                                    <b-button size="is-small" type="is-success"
+                                        @click="cambiarEstadoInsumo(props.row, mesa, 'listo')" icon-left="check"
+                                        class="ml-2 mb-1">
+                                        Marcar listo
                                     </b-button>
                                 </div>
 
@@ -120,15 +125,15 @@ export default {
             const insumoModificado = mesa.insumos.find(i => i.id === insumo.id);
             if (!insumoModificado) return;
 
-            insumoModificado.estado = nuevoEstado;
-
             const payload = {
                 id: mesa.mesa.idMesa,
                 atiende: mesa.mesa.atiende,
                 idUsuario: mesa.mesa.idUsuario,
                 total: mesa.mesa.total,
                 cliente: mesa.mesa.cliente,
-                insumos: mesa.insumos
+                insumos: mesa.insumos.map(i =>
+                    i.id === insumo.id ? { ...i, estado: nuevoEstado } : i
+                )
             };
 
             try {
@@ -223,6 +228,13 @@ export default {
 
 </script>
 <style>
+.kitchen-background {
+
+
+    background-color: #757575;
+    min-height: 100%;
+}
+
 .box {
     background-color: #1f1f1f;
     color: white;

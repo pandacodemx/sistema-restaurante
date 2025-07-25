@@ -8,6 +8,9 @@
               <b-icon icon="chart-box" size="is-large" class="mr-3"></b-icon>
               Reporte de Ventas
             </p>
+            <b-button type="is-primary" icon-left="file-export" @click="exportarExcel">
+              Exportar Excel
+            </b-button>
           </div>
         </div>
         <div class="level-right">
@@ -45,11 +48,13 @@
             <p class="title">${{ (totalVentas || 0).toLocaleString() }}</p>
           </div>
         </div>
+
       </div>
       <div v-if="ventas.length === 0 && !cargando" class="notification is-warning">
         <b-icon icon="information" class="mr-2"></b-icon>
         No se encontraron ventas para los filtros seleccionados.
       </div>
+
 
 
       <b-table class="elegant-table mt-5 is-size-7" :data="ventas" :paginated="isPaginated" :per-page="perPage"
@@ -176,6 +181,7 @@
   </div>
 </template>
 <script>
+import * as XLSX from "xlsx";
 import HttpService from "../../Servicios/HttpService";
 import Utiles from "../../Servicios/Utiles";
 import Ticket from "./Ticket.vue";
@@ -219,6 +225,59 @@ export default {
   },
 
   methods: {
+    exportarExcel() {
+      const filas = [];
+
+
+      this.ventas.forEach(venta => {
+        venta.insumos.forEach(insumo => {
+          filas.push({
+            "Venta ID": venta.id,
+            "Mesa": venta.idMesa,
+            "Fecha": venta.fecha,
+            "Cliente": venta.cliente,
+            "Atendió": venta.atendio,
+            "Producto": insumo.nombre,
+            "Cantidad": insumo.cantidad,
+            "Precio Unitario": insumo.precio,
+            "Subtotal": insumo.cantidad * insumo.precio
+          });
+        });
+      });
+
+
+      const worksheet = XLSX.utils.json_to_sheet(filas);
+
+
+      let rowOffset = filas.length + 3;
+
+
+      this.ventasPorUsuario.forEach((usuario, index) => {
+        const row = rowOffset + index;
+        const cellUsuario = `A${row}`;
+        const cellTotal = `B${row}`;
+        worksheet[cellUsuario] = { t: 's', v: `Total ${usuario.nombre}` };
+        worksheet[cellTotal] = { t: 'n', v: usuario.total };
+      });
+
+
+      const totalRow = rowOffset + this.ventasPorUsuario.length + 2;
+      worksheet[`A${totalRow}`] = { t: 's', v: 'TOTAL GENERAL' };
+      worksheet[`B${totalRow}`] = { t: 'n', v: this.totalVentas };
+
+
+      const range = XLSX.utils.decode_range(worksheet['!ref']);
+      range.e.r = totalRow;
+      worksheet['!ref'] = XLSX.utils.encode_range(range);
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "DetalleVentas");
+
+      XLSX.writeFile(workbook, `detalle_ventas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+
+    ,
     calcularResumen() {
       this.ventasHoy = this.calcularVentasHoy();
       this.ventasSemana = this.calcularVentasSemana();

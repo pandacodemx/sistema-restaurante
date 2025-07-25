@@ -42,22 +42,21 @@ export default ({
     },
 
     methods: {
-        onRegistrado(insumo) {
-            this.insumo = insumo
-            this.cargando = true
-            HttpService.registrarP(this.insumo, "editar_insumo.php")
+        onRegistrado(formData) {
+            this.cargando = true;
+            HttpService.registrarP(formData, "editar_insumo.php", true)
                 .then(editado => {
                     if (editado) {
                         this.$buefy.toast.open({
                             message: 'Información actualizada',
                             type: 'is-success'
-                        })
-                        this.cargando = false
+                        });
+                        this.cargando = false;
                         this.$router.push({
                             name: "Insumos",
-                        })
+                        });
                     }
-                })
+                });
         }
     }
 })
