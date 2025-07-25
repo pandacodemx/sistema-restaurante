@@ -18,6 +18,11 @@
                 <span class="nav-text">Inicio</span>
             </b-navbar-item>
 
+            <b-navbar-item tag="router-link" to="/cocina" class="icon-item">
+                <b-icon icon="silverware-variant"></b-icon>
+                <span class="nav-text">Cocina</span>
+            </b-navbar-item>
+
             <b-navbar-item tag="router-link" to="/realizar-orden" class="icon-item">
                 <b-icon icon="monitor-multiple"></b-icon>
                 <span class="nav-text">Ordenes</span>

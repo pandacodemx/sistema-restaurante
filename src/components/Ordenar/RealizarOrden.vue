@@ -54,19 +54,30 @@
                 }" @click="toggleMesaExpandida(mesa.mesa.idMesa)">
                     <div class="mesa-header">
                         <div>
-                            <h3 class="mesa-title">Mesa #{{ mesa.mesa.idMesa }}</h3>
-                            <div v-if="mesa.mesa.total" class="mesa-total">
-                                <span class="total-label">Total</span>
-                                <span class="total-amount">${{ mesa.mesa.total }}</span>
+                            <div class="data-mesa">
+                                <h3 class="mesa-title">Mesa #{{ mesa.mesa.idMesa }}</h3>
+                                <div v-if="mesa.mesa.total" class="mesa-total">
+                                    <span class="total-label">Total</span>
+                                    <span class="total-amount">${{ mesa.mesa.total }}</span>
+                                </div>
                             </div>
                             <hr>
-                            <div class="tags-estado">
-                                <b-tag :type="mesa.mesa.estado === 'ocupada' ? 'is-danger' : 'is-success'" rounded>
+                            <div class="tags-estado tag-grid">
+                                <b-tag :type="mesa.mesa.estado === 'ocupada' ? 'is-danger' : 'is-success'" rounded
+                                    class="ml-2">
                                     🧑{{ mesa.mesa.estado === 'ocupada' ? 'Ocupada' : 'Libre' }}
                                 </b-tag>
                                 <b-tag v-if="mesa.insumos.some(i => i.estado === 'listo')" type="is-warning" rounded
                                     class="ml-2">
                                     🧑‍🍳 Listo entrega
+                                </b-tag>
+                                <b-tag v-if="mesa.insumos.some(i => i.estado === 'preparando')" type="is-success"
+                                    rounded class="ml-2">
+                                    👨‍🍳 En preparación
+                                </b-tag>
+                                <b-tag v-if="mesa.insumos.some(i => i.tipo === 'BEBIDA' && i.estado !== 'entregado')"
+                                    type="is-info" rounded class="ml-2">
+                                    🧃 Bebida pendiente
                                 </b-tag>
                             </div>
                         </div>
@@ -502,9 +513,23 @@ export default {
 </script>
 
 <style scoped>
+.data-mesa {
+    display: flex;
+    flex-direction: column;
+}
+
 .tags-estado {
     display: flex;
     flex-direction: row;
+}
+
+.tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    max-width: 200px;
+
 }
 
 .dashboard-container {
@@ -677,10 +702,6 @@ export default {
     font-weight: 600;
     color: #2c3e50;
     margin-bottom: 0.5rem;
-}
-
-.mesa-total {
-    text-align: right;
 }
 
 .total-label {

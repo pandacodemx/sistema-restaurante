@@ -19,7 +19,9 @@
                             🪑 Mesa #{{ mesa.mesa.idMesa }} - {{ mesa.mesa.cliente || 'Sin nombre' }}
                         </h2>
 
-                        <b-table :data="mesa.insumos" striped hoverable :mobile-cards="true">
+                        <b-table :data="mesa.insumos.filter(i => i.tipo === 'PLATILLO')" striped hoverable
+                            :mobile-cards="true">
+
                             <b-table-column field="nombre" label="Producto" v-slot="props">
                                 <div>
                                     <strong>{{ props.row.nombre }}</strong>
@@ -45,11 +47,31 @@
                                 </b-tag>
                             </b-table-column>
 
-                            <b-table-column label="Acción" v-slot="props" width="150" centered>
-                                <b-button size="is-small" type="is-primary" @click="marcarPreparando(props.row)">
-                                    Marcar preparando
-                                </b-button>
+                            <b-table-column label="Acción" v-slot="props" width="180" centered>
+                                <div v-if="props.row.estado === 'preparando'">
+                                    <b-button size="is-small" type="is-warning"
+                                        @click="cambiarEstadoInsumo(props.row, mesa, 'pendiente')"
+                                        icon-left="arrow-left" class="mb-1">
+                                        Volver a pendiente
+                                    </b-button>
+                                </div>
+
+                                <div v-else-if="props.row.estado === 'pendiente'">
+                                    <b-button size="is-small" type="is-primary"
+                                        @click="cambiarEstadoInsumo(props.row, mesa, 'preparando')"
+                                        icon-left="chef-hat">
+                                        Marcar preparando
+                                    </b-button>
+                                </div>
+
+                                <div v-else>
+                                    <b-tag type="is-success" size="is-small" rounded>
+                                        {{ props.row.estado }}
+                                    </b-tag>
+                                </div>
                             </b-table-column>
+
+
                         </b-table>
 
                         <b-button type="is-success" @click="marcarOrdenLista(mesa)" class="mt-3" icon-left="check">
@@ -93,6 +115,40 @@ export default {
         clearInterval(this.autoActualizar);
     },
     methods: {
+
+        async cambiarEstadoInsumo(insumo, mesa, nuevoEstado) {
+            const insumoModificado = mesa.insumos.find(i => i.id === insumo.id);
+            if (!insumoModificado) return;
+
+            insumoModificado.estado = nuevoEstado;
+
+            const payload = {
+                id: mesa.mesa.idMesa,
+                atiende: mesa.mesa.atiende,
+                idUsuario: mesa.mesa.idUsuario,
+                total: mesa.mesa.total,
+                cliente: mesa.mesa.cliente,
+                insumos: mesa.insumos
+            };
+
+            try {
+                const resultado = await HttpService.registrar(payload, "editar_mesa.php");
+                if (resultado) {
+                    this.$buefy.toast.open({
+                        message: `Estado actualizado a ${nuevoEstado}`,
+                        type: "is-success"
+                    });
+                    this.obtenerMesas();
+                }
+            } catch (error) {
+                this.$buefy.toast.open({
+                    message: "Error al actualizar estado",
+                    type: "is-danger"
+                });
+            }
+        }
+
+        ,
         obtenerMesas() {
             this.cargando = true;
             HttpService.obtener("obtener_mesas.php")
