@@ -17,6 +17,7 @@ import CambiarPassword from "../components/Usuarios/CambiarPassword";
 import Inicio from "../components/Inicio";
 import ReporteVentas from "../components/Ventas/ReporteVentas";
 import PanelCocina from "../components/Ordenar/PanelCocina.vue";
+import CocinaKDS from "../components/Ordenar/CocinaKDS.vue";
 
 Vue.use(Router);
 
@@ -98,6 +99,11 @@ export default new Router({
       path: "/reporte-ventas",
       name: "ReporteVentas",
       component: ReporteVentas,
+    },
+    {
+      path: "/cocina-kds",
+      name: "CocinaKDS",
+      component: CocinaKDS,
     },
   ],
 });
