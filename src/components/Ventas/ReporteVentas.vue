@@ -4,13 +4,11 @@
       <nav class="level is-mobile">
         <div class="level-left">
           <div class="level-item">
-            <p class="title is-3 has-text-weight-bold has-text-primary">
+            <p class="title is-3 has-text-weight-bold has-text-black">
               <b-icon icon="chart-box" size="is-large" class="mr-3"></b-icon>
               Reporte de Ventas
             </p>
-            <b-button type="is-primary" icon-left="file-export" @click="exportarExcel">
-              Exportar Excel
-            </b-button>
+          
           </div>
         </div>
         <div class="level-right">
@@ -18,6 +16,9 @@
             <div class="notification total-badge">
               <p class="title is-4">Total ventas: <span class="has-text-weight-bold">${{ (totalVentas ||
                 0).toLocaleString() }}</span></p>
+              <b-button class="mt-3" type="is-primary" icon-left="file-export" @click="exportarExcel">
+              Exportar Excel
+            </b-button>
             </div>
           </div>
         </div>
@@ -395,6 +396,7 @@ export default {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   font-size: 14px;
+  min-height: 100%;
 }
 
 .minimal-table th {

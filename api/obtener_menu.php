@@ -3,12 +3,25 @@ include_once "encabezado.php";
 include_once "funciones.php";
 
 $bd = conectarBaseDatos();
-$sentencia = $bd->query("SELECT nombre, categoria, codigo, descripcion AS ingredientes, imagen, tipo FROM insumos");
+
+
+$sentencia = $bd->query("
+    SELECT 
+        i.nombre, 
+        c.nombre AS categoria, 
+        i.codigo, 
+        i.precio, 
+        i.descripcion AS ingredientes, 
+        i.imagen, 
+        i.tipo 
+    FROM insumos i
+    INNER JOIN categorias c ON i.categoria = c.id
+");
 
 $datos = [];
 while ($fila = $sentencia->fetch(PDO::FETCH_ASSOC)) {
-    $fila['tipo'] = json_decode($fila['tipo'], true); // si lo guardas como JSON
-    $fila['imagen'] = $fila['imagen'] ? "http://localhost/sistema-restaurante/api/" . $fila['imagen'] : null;
+    $fila['tipo'] = json_decode($fila['tipo'], true); 
+    $fila['imagen'] = $fila['imagen'] ? "http://localhost/sistema-restaurante-1/api/" . $fila['imagen'] : null;
     $datos[] = $fila;
 }
 

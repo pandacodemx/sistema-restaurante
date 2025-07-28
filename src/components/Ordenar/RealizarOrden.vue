@@ -4,9 +4,9 @@
             <!-- Encabezado mejorado -->
             <div class="dashboard-header">
                 <div class="header-content">
-                    <b-icon icon="table" type="is-primary" size="is-large" class="header-icon"></b-icon>
+                    
                     <div>
-                        <h1 class="dashboard-title">Gestión de Mesas</h1>
+                        <h1 class="dashboard-title">🪑 Gestión de Mesas</h1>
                         <p class="dashboard-subtitle">Mesas disponibles y ocupadas</p>
                     </div>
                 </div>

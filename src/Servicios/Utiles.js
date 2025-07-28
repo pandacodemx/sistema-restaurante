@@ -25,7 +25,7 @@ const DIAS = [
 
 const Utiles = {
   generarUrlImagen(imagen) {
-    return "http://localhost/sistema-restaurante/api/" + imagen;
+    return "http://localhost/sistema-restaurante-1/api/" + imagen;
   },
   generarGrafica(array, contenedor, grafica, id) {
     this.resetearGrafica(contenedor, grafica, id);
@@ -95,11 +95,16 @@ const Utiles = {
     let errores = [];
 
     for (let [clave, valor] of Object.entries(datos)) {
-      if (!valor || !clave) errores.push("Debes colocar el valor de " + clave);
+      // Solo validar el ID si ya existe
+      if (clave === "id" && !valor) {
+        continue; // o errores.push("El ID es obligatorio para editar");
+      }
+
+      if (!valor) errores.push("Debes colocar el valor de " + clave);
     }
+
     return errores;
   },
-
   cambiarNumeroANombreMes(arreglo) {
     for (let i = 0; i < arreglo.length; i++) {
       let pos = arreglo[i].mes;

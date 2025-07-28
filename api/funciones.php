@@ -386,7 +386,7 @@ function editarUsuario($usuario)
 function obtenerUsuarioPorId($idUsuario)
 {
 	$bd = conectarBaseDatos();
-	$sentencia = $bd->prepare("SELECT id, correo, nombre, telefono FROM usuarios WHERE id = ?");
+	$sentencia = $bd->prepare("SELECT id, correo, nombre, telefono, rol FROM usuarios WHERE id = ?");
 	$sentencia->execute([$idUsuario]);
 	return $sentencia->fetchObject();
 }
@@ -394,7 +394,7 @@ function obtenerUsuarioPorId($idUsuario)
 function obtenerUsuarios()
 {
 	$bd = conectarBaseDatos();
-	$sentencia = $bd->query("SELECT id, correo, nombre, telefono FROM usuarios");
+	$sentencia = $bd->query("SELECT id, correo, nombre, telefono, rol FROM usuarios");
 	return $sentencia->fetchAll();
 }
 

@@ -1,13 +1,11 @@
 <template>
-  <div class="bg-full p-6">
+  <div class="bg-full p-5">
     <nav class="level is-mobile">
-      <div class="level-left">
-        <div class="level-item">
-          <p class="title is-3 has-text-weight-bold has-text-primary">
-            <b-icon icon="basket" size="is-large" class="mr-3"></b-icon>
-            Insumos
-          <p class="ml-2 has-text-grey-light is-size-6">{{ insumos.length }} resultados</p>
-          </p>
+      <div class="header-content">
+       
+        <div>
+          <h1 class="dashboard-title"> 🍔 Insumos</h1>
+          <p class="dashboard-subtitle">{{ insumos.length }} resultados</p>
         </div>
       </div>
       <div class="level-right">
@@ -172,7 +170,7 @@ export default {
       this.mostrarModalImagen = true;
     },
     obtenerRutaImagen(ruta) {
-      return `http://localhost/sistema-restaurante/api/${ruta}`;
+      return `http://localhost/sistema-restaurante-1/api/${ruta}`;
     },
     busquedaAvanzada() {
       if (this.filtros.tipo === "BEBIDA" || this.filtros.tipo === "PLATILLO") {
@@ -242,6 +240,29 @@ export default {
 };
 </script>
 <style>
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-icon {
+    background-color: #f0f7ff;
+    padding: 0.75rem;
+    border-radius: 50%;
+}
+
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.dashboard-subtitle {
+    font-size: 1rem;
+    color: #7f8c8d;
+}
 .bg-full {
   background-color: #f0efef;
   border-radius: 12px;

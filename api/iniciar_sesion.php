@@ -10,9 +10,10 @@ if ($respuesta) {
 
 	$usuario = [
 		"nombreUsuario" => $respuesta->nombre,
-		"idUsuario" => $respuesta->id
+		"idUsuario" => $respuesta->id,
+		
 	];
-	///PacoHunterDev
+	
 	$verificaPass = verificarPassword("AdminRestaurante1", $respuesta->id);
 	if ($verificaPass) {
 		echo json_encode(["resultado" => "cambia", "datos" => $usuario]);

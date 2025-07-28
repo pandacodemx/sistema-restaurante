@@ -52,6 +52,10 @@
                 <b-icon icon="brightness-7"></b-icon>
                 <span class="nav-text">Configuración</span>
             </b-navbar-item>
+             <b-navbar-item href="http://localhost:4321/menu" class="icon-item" target="_blank">
+                <b-icon icon="web"></b-icon>
+                <span class="nav-text">Ver sitio web</span>
+            </b-navbar-item>
         </template>
 
         <!-- Usuario / Botones -->

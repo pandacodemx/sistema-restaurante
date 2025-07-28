@@ -1,7 +1,7 @@
 <template>
     <section class="section kitchen-background">
         <div class="container">
-            <h1 class="title has-text-centered mb-5 has-text-white">🧑‍🍳 Panel de Cocina</h1>
+            <h1 class="title has-text-centered mb-5 has-text-black">🧑‍🍳 Panel de Cocina</h1>
 
             <b-loading :active="cargando" is-full-page />
 
@@ -231,8 +231,11 @@ export default {
 .kitchen-background {
 
 
-    background-color: #757575;
-    min-height: 100%;
+  background-color: #f0efef;
+  border-radius: 12px;
+  min-height: 100dvh;
+  padding: 20px;
+  margin-top: 10px;
 }
 
 .box {

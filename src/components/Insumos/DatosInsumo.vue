@@ -110,11 +110,14 @@ export default {
         if (this.insumo.imagen && typeof this.insumo.imagen === 'string') {
             this.imagenPreview = Utiles.generarUrlImagen(this.insumo.imagen)
         }
+        if (this.insumo.tipo) {
+            this.obtenerCategorias();
+        }
 
     },
     methods: {
         generarUrlImagen(nombreArchivo) {
-            return "http://localhost/sistema-restaurante/api/" + nombreArchivo;
+            return "http://localhost/sistema-restaurante-1/api/" + nombreArchivo;
         },
 
         onFileChange(event) {
@@ -172,8 +175,10 @@ export default {
             HttpService.obtenerConDatos(this.insumo.tipo, "obtener_categorias_tipo.php")
                 .then(resultado => {
                     this.categorias = resultado
-                    this.insumo.categoria = "" // Resetear categoría al cambiar tipo
-                })
+                    if (!this.insumo.id) {
+                        this.insumo.categoria = "";
+                    }
+                });
         }
     },
     watch: {
@@ -183,8 +188,12 @@ export default {
                 if (nuevo && nuevo.imagen && !this.imagen) {
                     this.imagenPreview = this.generarUrlImagen(nuevo.imagen);
                 }
+                if (nuevo && nuevo.tipo) {
+                    this.obtenerCategorias();
+                }
             }
         }
+
     },
 }
 </script>

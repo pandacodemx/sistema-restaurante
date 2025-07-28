@@ -105,5 +105,9 @@ export default new Router({
       name: "CocinaKDS",
       component: CocinaKDS,
     },
+     {
+      path: "http://localhost:4321/menu",
+      name: "Sitio Web",
+    },
   ],
 });

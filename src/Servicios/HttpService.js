@@ -1,4 +1,4 @@
-const RUTA_GLOBAL = "http://localhost/sistema-restaurante/api/";
+const RUTA_GLOBAL = "http://localhost/sistema-restaurante-1/api/";
 
 const HttpService = {
   async registrarP(datos, ruta, esFormData = false) {
