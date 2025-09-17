@@ -1,159 +1,155 @@
 <template>
-    <div class="bg-full p-6">
-        <section>
-            <div class="welcome">
-                <h1>Bienvenido! <b>{{ nombreUsuario }}</b> </h1>
-                <small>Sistema para restaurantes V1.0 </small>
+    <div class="dashboard-container">
+        <!-- Header con información de usuario -->
+        <div class="dashboard-header">
+            <div class="user-welcome">
+                <h1>¡Bienvenido! <span class="username">{{ nombreUsuario }}</span></h1>
+                <p class="system-version">Bamboo POS Food Service V1.0</p>
             </div>
-            <hr>
-            <div class="columns is-multiline">
-                <div class="column is-6">
-                    <div class="box-welcome">
-                        <div class="title is-4 has-text-grey ">
-                            <b-icon icon="food-fork-drink"></b-icon>
-                            Insumos más vendidos
+            <div class="header-actions">
+                <b-button icon-left="refresh" @click="obtenerDatos" class="refresh-btn" rounded>
+                    Actualizar
+                </b-button>
+            </div>
+        </div>
 
-                            <b-field class="is-pulled-right">
-                                <b-select v-model="limiteSeleccionado" @change.native="busquedaAvanzada('limite')"
-                                    expanded>
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="15">15</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                </b-select>
-                            </b-field>
-                        </div>
+        <!-- Cards de resumen rápido -->
+        <div class="summary-cards">
+            <div v-for="(carta, index) in cartas" :key="index" class="summary-card" @click="$router.push(carta.ruta)">
+                <div class="card-icon" :class="carta.colorTexto">
+                    <b-icon :icon="carta.icono" size="is-medium"></b-icon>
+                </div>
+                <div class="card-content">
+                    <p class="card-header">{{ carta.encabezado }}</p>
+                    <h3 class="card-title">{{ carta.titulo }}</h3>
+                    <p class="card-total">{{ carta.total }}</p>
+                </div>
+            </div>
+        </div>
 
-                        <b-table :data="insumosMasVendidos" :bordered="true" :striped="true" class="is-size-7">
-
-                            <b-table-column field="icono" label="" v-slot="props">
-                                <b-icon icon="noodles" size="is-small" type="is-info"
-                                    v-if="props.row.tipo === 'PLATILLO'">
-                                </b-icon>
-
-                                <b-icon icon="cup" size="is-small" type="is-success" v-if="props.row.tipo === 'BEBIDA'">
-                                </b-icon>
-                            </b-table-column>
-                            <b-table-column field="nombre" label="Nombre" v-slot="props">
-                                {{ props.row.nombre }}
-                            </b-table-column>
-                            <b-table-column field="categoria" label="Categoria" v-slot="props">
-                                {{ props.row.categoria }}
-                            </b-table-column>
-                            <b-table-column field="total" label="Total" v-slot="props">
-                                ${{ props.row.total }}
-                            </b-table-column>
-                            <b-table-column field="progreso" label="Progreso" v-slot="props">
-                                <b-progress :value="props.row.progreso" show-value format="percent" :type="{
-                                    'is-success': props.row.progreso >= 90,
-                                    'is-info': props.row.progreso >= 70 && props.row.progreso < 90,
-                                    'is-danger': props.row.progreso < 70
-                                }">
-                                </b-progress>
-                            </b-table-column>
-                        </b-table>
+        <!-- Sección de gráficas y tablas -->
+        <div class="dashboard-content">
+            <!-- Fila 1: Gráficas principales -->
+            <div class="content-row">
+                <div class="chart-card">
+                    <div class="card-header">
+                        <b-icon icon="calendar-week"></b-icon>
+                        <span>Ventas de la semana</span>
+                        <span class="total-tag">${{ totalVentasSemana }}</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="grafica-semana"></canvas>
                     </div>
                 </div>
-                <div class="column is-6">
-                    <div class="box-welcome">
-                        <p class="title is-4 has-text-grey ">
-                            <b-icon icon="table-furniture"></b-icon>
-                            Mesas más ocupadas
-                        </p>
-                        <b-table :data="totalesPorMesa" :bordered="true" :striped="true" class="is-size-7">
-                            <b-table-column field="idMesa" label="Mesa" v-slot="props">
-                                Mesa #{{ props.row.idMesa }}
-                            </b-table-column>
-                            <b-table-column field="total" label="Total" v-slot="props">
-                                ${{ props.row.total }}
-                            </b-table-column>
-                            <b-table-column field="progreso" label="Progreso" v-slot="props">
-                                <b-progress :value="props.row.progreso" show-value format="percent" :type="{
-                                    'is-success': props.row.progreso >= 90,
-                                    'is-info': props.row.progreso >= 70 && props.row.progreso < 90,
-                                    'is-danger': props.row.progreso < 70
-                                }">
-                                </b-progress>
-                            </b-table-column>
-                        </b-table>
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <b-icon icon="clock-outline"></b-icon>
+                        <span>Ventas por hora</span>
+                        <span class="total-tag">${{ totalVentasHora }}</span>
+                    </div>
+                    <div class="filters">
+                        <b-datepicker v-model="periodoHoras" range size="is-small" placeholder="Seleccionar período" 
+                            @input="busquedaAvanzada('hora')" trap-focus>
+                        </b-datepicker>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="grafica-hora"></canvas>
                     </div>
                 </div>
             </div>
-            <div class="columns is-multiline">
-                <div class="column is-one-third">
-                    <div class="box-welcome">
-                        <p class="title is-4 has-text-grey ">
-                            <b-icon icon="plus-circle"></b-icon>
-                            Ventas por hora
-                            <span class="tag is-primary is-medium is-pulled-right"> ${{ totalVentasHora }}</span>
-                        </p>
-                        <b-field label="Selecciona un periodo de tiempo">
-                            <b-datepicker placeholder="Seleccionar fecha" size="is-small" v-model="periodoHoras"
-                                @input="busquedaAvanzada('hora')" range>
-                            </b-datepicker>
-                        </b-field>
-                        <div id="contenedor-hora">
-                            <canvas id="grafica-hora"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="column is-one-third">
-                    <div class="box-welcome">
-                        <p class="title is-4 has-text-grey ">
-                            <b-icon icon="account"></b-icon>
-                            Ventas de usuarios
-                            <span class="tag is-primary is-medium is-pulled-right"> ${{ totalVentasUsuarios }}</span>
-                        </p>
-                        <b-field label="Selecciona un periodo de tiempo">
-                            <b-datepicker placeholder="Seleccionar fecha" size="is-small" v-model="periodoUsuarios"
-                                @input="busquedaAvanzada('usuario')" range>
-                            </b-datepicker>
-                        </b-field>
-                        <div id="contenedor-usuarios">
-                            <canvas id="grafica-usuarios"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="column is-one-third">
-                    <div class="box-welcome">
-                        <p class="title is-4 has-text-grey ">
-                            <b-icon icon="calendar-week"></b-icon>
-                            Ventas de la semana
-                            <span class="tag is-primary is-medium is-pulled-right"> ${{ totalVentasSemana }}</span>
-                        </p>
 
-                        <div id="contenedor-semana">
-                            <canvas id="grafica-semana"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <hr>
-
-            <div class="box-welcome">
-                <p class="title is-4 has-text-grey ">
-                    <b-icon icon="calendar-month"></b-icon>
-                    Ventas por año
-
-                    <span class="tag is-primary is-large is-pulled-right"> ${{ totalVentasMeses }}</span>
-                    <b-field label="Selecciona un año">
-                        <b-select size="is-small" v-model="anioSeleccionado" @change.native="busquedaAvanzada('mes')"
-                            expanded>
-                            <option v-for="(anio, index) in listaAnios" :key="index" :value="anio">
-                                {{ anio }}
-                            </option>
+            <!-- Fila 2: Tablas de datos -->
+            <div class="content-row">
+                <div class="data-card">
+                    <div class="card-header">
+                        <b-icon icon="food-fork-drink"></b-icon>
+                        <span>Insumos más vendidos</span>
+                        <b-select v-model="limiteSeleccionado" size="is-small" @change="busquedaAvanzada('limite')">
+                            <option value="5">Top 5</option>
+                            <option value="10">Top 10</option>
+                            <option value="15">Top 15</option>
                         </b-select>
-                    </b-field>
-                </p>
-                <div id="contenedor-mes">
-                    <canvas id="grafica-mes"></canvas>
+                    </div>
+                    <div class="table-container">
+                        <div v-for="(item, index) in insumosMasVendidos" :key="index" class="table-row">
+                            <div class="row-icon">
+                                <b-icon :icon="item.tipo === 'PLATILLO' ? 'noodles' : 'cup'" 
+                                    :type="item.tipo === 'PLATILLO' ? 'is-info' : 'is-success'">
+                                </b-icon>
+                            </div>
+                            <div class="row-content">
+                                <span class="product-name">{{ item.nombre }}</span>
+                                <span class="product-category">{{ item.categoria }}</span>
+                            </div>
+                            <div class="row-amount">${{ item.total }}</div>
+                            <div class="row-progress">
+                                <b-progress :value="item.progreso" size="is-small" show-value 
+                                    :type="getProgressType(item.progreso)">
+                                </b-progress>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="card-header">
+                        <b-icon icon="table-furniture"></b-icon>
+                        <span>Mesas más ocupadas</span>
+                    </div>
+                    <div class="table-container">
+                        <div v-for="(mesa, index) in totalesPorMesa" :key="index" class="table-row">
+                            <div class="row-content">
+                                <span class="mesa-number">Mesa #{{ mesa.idMesa }}</span>
+                            </div>
+                            <div class="row-amount">${{ mesa.total }}</div>
+                            <div class="row-progress">
+                                <b-progress :value="mesa.progreso" size="is-small" show-value 
+                                    :type="getProgressType(mesa.progreso)">
+                                </b-progress>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <b-loading :is-full-page="true" v-model="cargando" :can-cancel="false"></b-loading>
 
-        </section>
+            <!-- Fila 3: Gráficas adicionales -->
+            <div class="content-row">
+                <div class="chart-card">
+                    <div class="card-header">
+                        <b-icon icon="account"></b-icon>
+                        <span>Ventas por usuario</span>
+                        <span class="total-tag">${{ totalVentasUsuarios }}</span>
+                    </div>
+                    <div class="filters">
+                        <b-datepicker v-model="periodoUsuarios" range size="is-small" placeholder="Seleccionar período"
+                            @input="busquedaAvanzada('usuario')" trap-focus>
+                        </b-datepicker>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="grafica-usuarios"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <b-icon icon="calendar-month"></b-icon>
+                        <span>Ventas del año</span>
+                        <span class="total-tag">${{ totalVentasMeses }}</span>
+                    </div>
+                    <div class="filters">
+                        <b-select v-model="anioSeleccionado" size="is-small" @change="busquedaAvanzada('mes')">
+                            <option v-for="anio in listaAnios" :value="anio">{{ anio }}</option>
+                        </b-select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="grafica-mes"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <b-loading :is-full-page="false" v-model="cargando" :can-cancel="false"></b-loading>
     </div>
 </template>
 <script>
@@ -203,6 +199,11 @@ export default ({
     },
 
     methods: {
+         getProgressType(progreso) {
+            if (progreso >= 90) return 'is-success';
+            if (progreso >= 70) return 'is-info';
+            return 'is-danger';
+        },
         obtenerDatos() {
             HttpService.obtener("obtener_datos_local.php")
                 .then(resultado => {
@@ -308,14 +309,7 @@ export default ({
                             colorTexto: "has-text-warning",
                             ruta: "/insumos"
                         },
-                        {
-                            encabezado: "Total ventas",
-                            titulo: "Ventas",
-                            total: "$" + this.resultadoCartas.totalVentas,
-                            icono: "cart-outline",
-                            colorTexto: "has-text-primary",
-                            ruta: "/reporte-ventas"
-                        },
+                        
                     ]
                     this.cargando = false
                 })
@@ -325,39 +319,223 @@ export default ({
     }
 })
 </script>
-<style>
-.is-bold {
-    font-weight: 700;
+<style scoped>
+.dashboard-container {
+    padding: 1rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
 }
 
-.bg-full {
-    background-color: #f0efef;
-    border-radius: 12px;
-    min-height: 100dvh;
-    padding: 20px;
-    margin-top: 10px;
-}
-
-.welcome {
-    background-color: rgb(255, 255, 255);
-    padding: 10px;
-    color: rgb(61, 61, 61);
-    font-size: 25px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-}
-
-.box-welcome {
-    background: rgba(255, 255, 255, 0.582);
-    backdrop-filter: blur(5px);
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 1.5rem;
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    border: none;
-    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-small {
-    font-size: 15px;
+.user-welcome h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.username {
+    color: #faa200;
+    font-weight: bold;
+}
+
+.system-version {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.refresh-btn {
+    background: linear-gradient(135deg, #faa200 0%, #ff7b00 100%);
+    border: none;
+    color: white;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.card-icon {
+    margin-right: 1rem;
+    font-size: 2rem;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-header {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-bottom: 0.5rem;
+}
+
+.card-title {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.card-total {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.content-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.chart-card, .data-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.total-tag {
+    margin-left: auto;
+    background: #3498db;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.chart-container {
+    height: 250px;
+    position: relative;
+}
+
+.table-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.row-icon {
+    font-size: 1.2rem;
+}
+
+.product-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.product-category {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+.mesa-number {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.row-amount {
+    font-size: 12px;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.row-progress {
+    min-width: 100px;
+}
+
+.filters {
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .content-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-row {
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem;
+    }
+    
+    .row-amount, .row-progress {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-card, .data-card, .summary-card {
+    animation: fadeIn 0.6s ease-out;
 }
 </style>

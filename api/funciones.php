@@ -474,31 +474,37 @@ function obtenerInsumoPorId($idInsumo)
 
 function obtenerInsumos($filtros)
 {
-	$bd = conectarBaseDatos();
-	$valoresAEjecutar = [];
-	$sql = "SELECT insumos.*, IFNULL(categorias.nombre, 'NO DEFINIDA') AS categoria
-	FROM insumos
-	LEFT JOIN categorias ON categorias.id = insumos.categoria WHERE 1 ";
+    $bd = conectarBaseDatos();
+    $valoresAEjecutar = [];
+    $sql = "SELECT insumos.*, IFNULL(categorias.nombre, 'NO DEFINIDA') AS categoria
+    FROM insumos
+    LEFT JOIN categorias ON categorias.id = insumos.categoria WHERE 1 ";
 
-	if ($filtros->tipo != "") {
-		$sql .= " AND  insumos.tipo = ?";
-		array_push($valoresAEjecutar, $filtros->tipo);
-	}
 
-	if ($filtros->categoria != "") {
-		$sql .= " AND  insumos.categoria = ?";
-		array_push($valoresAEjecutar, $filtros->categoria);
-	}
+    if (is_object($filtros)) {
+        if (isset($filtros->tipo) && $filtros->tipo != "") {
+            $sql .= " AND insumos.tipo = ?";
+            array_push($valoresAEjecutar, $filtros->tipo);
+        }
 
-	if ($filtros->nombre != "") {
-		$sql .= " AND  insumos.nombre LIKE ? OR insumos.codigo LIKE ?";
-		array_push($valoresAEjecutar, '%' . $filtros->nombre . '%');
-		array_push($valoresAEjecutar, '%' . $filtros->nombre . '%');
-	}
+        if (isset($filtros->categoria) && $filtros->categoria != "") {
+            $sql .= " AND insumos.categoria = ?";
+            array_push($valoresAEjecutar, $filtros->categoria);
+        }
 
-	$sentencia = $bd->prepare($sql);
-	$sentencia->execute($valoresAEjecutar);
-	return $sentencia->fetchAll();
+        if (isset($filtros->nombre) && $filtros->nombre != "") {
+            $sql .= " AND (insumos.nombre LIKE ? OR insumos.codigo LIKE ?)";
+            array_push($valoresAEjecutar, '%' . $filtros->nombre . '%');
+            array_push($valoresAEjecutar, '%' . $filtros->nombre . '%');
+        }
+    }
+
+   
+    $sql .= " ORDER BY insumos.nombre ASC";
+
+    $sentencia = $bd->prepare($sql);
+    $sentencia->execute($valoresAEjecutar);
+    return $sentencia->fetchAll();
 }
 function registrarInsumo($insumo)
 {

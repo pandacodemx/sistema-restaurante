@@ -1,96 +1,125 @@
 <template>
-  <div class="order-container">
-    <section class="order-card">
-      <!-- Header de la orden -->
-      <div class="order-header">
-        <div class="order-title">
-          <b-icon icon="food" size="is-large" type="is-primary"></b-icon>
-          <h1 class="title is-2 has-text-weight-bold">
-            Orden Mesa #{{ idMesa }}
-          </h1>
-        </div>
-
-        <!-- Total y cliente -->
-        <div class="order-summary">
-          <div class="total-display">
-            <span class="total-label">Total:</span>
-            <span class="total-amount">${{ total.toLocaleString() }}</span>
-          </div>
-
-          <b-field label="Nombre del cliente" class="client-field">
-            <b-input rounded placeholder="Nombre del cliente (opcional)" v-model="cliente" icon="account"
-              size="is-medium">
-            </b-input>
-          </b-field>
+  <div class="touch-order-container">
+    <!-- Panel izquierdo: Productos y categorías -->
+    <div class="products-panel">
+      <div class="categories-header">
+        <h2 class="title is-4">Productos</h2>
+        <div class="categories-tabs">
+          <button v-for="category in categories" :key="category.id"
+            :class="['category-tab', { 'is-active': activeCategory === category.id }]"
+            @click="activeCategory = category.id">
+            {{ category.name }}
+          </button>
         </div>
       </div>
 
-      <!-- Barra de búsqueda -->
       <div class="search-container">
-        <b-field class="search-field">
-          <b-autocomplete rounded size="is-large" v-model="nombre" placeholder="Buscar insumo..."
-            :data="filteredDataObj" field="nombre" @input="buscarInsumo"
-            @select="(option) => agregarInsumoAOrden(option)" :clearable="true" keep-first icon="magnify"
-            ref="searchInput" class="search-input">
-            <template #empty>No se encontraron insumos</template>
-          </b-autocomplete>
+        <b-field>
+          <b-input rounded size="is-medium" v-model="searchTerm" placeholder="Buscar producto..." icon="magnify"
+           ></b-input>
         </b-field>
       </div>
 
-      <!-- Botones de acción -->
-      <div class="action-buttons">
-        <b-button type="is-primary" size="is-large" icon-left="book-plus" class="is-rounded order-button"
-          @click="realizarOrden" v-if="!estaAgregandoInsumos">
-          Confirmar Orden
-        </b-button>
-        <b-button type="is-info" size="is-large" icon-left="plus-circle" class="is-rounded add-button"
-          @click="editarOrden" v-if="estaAgregandoInsumos">
-          Añadir a Orden
-        </b-button>
-      </div>
-
-      <!-- Lista de insumos -->
-      <div class="products-container">
-        <!-- Insumos por agregar -->
-        <div v-if="insumosOrden.length > 0" class="products-section">
-          <div class="section-header">
-            <b-icon icon="plus-circle" size="is-small"></b-icon>
-            <h3 class="section-title">Insumos por agregar</h3>
+      <div class="products-grid">
+        <div v-for="product in filteredProducts" :key="product.id" class="product-card" @click="addToOrder(product)">
+          <div class="product-image">
+            <img :src="getImageUrl(product.imagen)" :alt="product.nombre" @error="handleImageError">
           </div>
-          <productos-orden :lista="insumosOrden" :tipo="'nuevo'" @modificado="onProductoModificado"
-            @quitar="eliminar" />
-        </div>
-
-        <!-- Insumos existentes -->
-        <div v-if="insumosAnteriores.length > 0" class="products-section">
-          <div class="section-header">
-            <b-icon icon="basket" size="is-small"></b-icon>
-            <h3 class="section-title">Insumos solicitados</h3>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.nombre }}</h3>
+            <p class="product-price">${{ parseFloat(product.precio).toLocaleString() }}</p>
           </div>
-          <productos-orden :lista="insumosAnteriores" :tipo="'entregado'" />
-        </div>
-
-        <!-- Mensaje cuando no hay insumos -->
-        <div v-if="insumosOrden.length === 0 && insumosAnteriores.length === 0" class="empty-state">
-          <b-icon icon="magnify" size="is-large" type="is-grey-light"></b-icon>
-          <p class="empty-text">Busca y agrega insumos a la orden</p>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!-- Panel derecho: Orden y opciones -->
+    <div class="order-panel">
+      <div class="order-header">
+        <h1 class="title is-3">Mesa #{{ idMesa }}</h1>
+
+        <b-field label="Nombre del cliente" class="client-field">
+          <b-input rounded placeholder="Cliente (opcional)" v-model="cliente" icon="account" size="is-medium"></b-input>
+        </b-field>
+      </div>
+
+      <div class="order-items">
+        <div class="order-section" v-if="insumosOrden.length > 0">
+          <h3 class="section-title">Nuevos insumos</h3>
+          <div class="order-item" v-for="item in insumosOrden" :key="'new-' + item.id">
+            <div class="item-info">
+              <span class="item-name">{{ item.nombre }}</span>
+              <span class="item-price">${{ (item.precio * item.cantidad).toLocaleString() }}</span>
+            </div>
+            <div class="item-controls">
+              <button class="quantity-btn" @click.stop="decreaseQuantity(item)">-</button>
+              <span class="quantity">{{ item.cantidad }}</span>
+              <button class="quantity-btn" @click.stop="increaseQuantity(item)">+</button>
+              <button class="remove-btn" @click.stop="removeItem(item)">
+                <b-icon icon="delete" size="is-small"></b-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-section" v-if="insumosAnteriores.length > 0">
+          <h3 class="section-title">Insumos existentes</h3>
+          <div class="order-item" v-for="item in insumosAnteriores" :key="'prev-' + item.id">
+            <div class="item-info">
+              <span class="item-name">{{ item.nombre }}</span>
+              <span class="item-price">${{ (item.precio * item.cantidad).toLocaleString() }}</span>
+            </div>
+            <div class="item-quantity">
+              <span class="quantity">{{ item.cantidad }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="insumosOrden.length === 0 && insumosAnteriores.length === 0" class="empty-order">
+          <b-icon icon="cart" size="is-large" type="is-grey-light"></b-icon>
+          <p>La orden está vacía</p>
+        </div>
+      </div>
+
+      <div class="order-summary">
+        <div class="total-display">
+          <span class="total-label">Total:</span>
+          <span class="total-amount">${{ total.toLocaleString() }}</span>
+        </div>
+
+        <div class="action-buttons">
+          <button class="button is-primary is-large is-fullwidth confirm-button" @click="realizarOrden"
+            v-if="!estaAgregandoInsumos">
+            <b-icon icon="check"></b-icon>
+            <span>Confirmar Orden</span>
+          </button>
+
+          <button class="button is-info is-large is-fullwidth add-button" @click="editarOrden"
+            v-if="estaAgregandoInsumos">
+            <b-icon icon="plus"></b-icon>
+            <span>Añadir a Orden</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import HttpService from "../../Servicios/HttpService";
-import ProductosOrden from "./ProductosOrden.vue";
 
 export default {
-  name: "Ordenar",
-  components: { ProductosOrden },
+  name: "TouchOrder",
   data: () => ({
     idMesa: "",
-    insumos: [],
-    nombre: "",
+    allProducts: [],
+    searchTerm: "",
+    categories: [
+      { id: "all", name: "Todos" },
+      { id: "PLATILLO", name: "Platillos" },
+      { id: "BEBIDA", name: "Bebidas" }
+    ],
+    activeCategory: "all",
     insumosAnteriores: [],
     insumosOrden: [],
     total: 0,
@@ -98,10 +127,30 @@ export default {
     estaAgregandoInsumos: false,
   }),
 
-  mounted() {
-    if (this.$refs.searchInput) {
-      this.$refs.searchInput.focus();
+  computed: {
+    filteredProducts() {
+      let filtered = this.allProducts;
+      
+      // Filtrar por categoría seleccionada
+      if (this.activeCategory !== 'all') {
+        filtered = filtered.filter(product => product.tipo === this.activeCategory);
+      }
+      
+      // Filtrar por búsqueda
+      if (this.searchTerm) {
+        const term = this.searchTerm.toLowerCase();
+        filtered = filtered.filter(product => 
+          product.nombre.toLowerCase().includes(term) ||
+          (product.descripcion && product.descripcion.toLowerCase().includes(term)) ||
+          (product.codigo && product.codigo.toLowerCase().includes(term))
+        );
+      }
+      
+      return filtered;
     }
+  },
+
+  mounted() {
     this.idMesa = this.$route.params.id;
     this.cliente = this.$route.params.cliente || "";
     this.insumosAnteriores = this.$route.params.insumosEnLista || [];
@@ -110,40 +159,93 @@ export default {
       this.calcularTotal();
       this.estaAgregandoInsumos = true;
     }
+
+    this.loadProducts();
   },
 
   methods: {
-    onProductoModificado() {
+    getImageUrl(imagePath) {
+      if (!imagePath || imagePath === 'null' || imagePath === 'undefined') {
+        return 'https://via.placeholder.com/150x150/ff7b7b/ffffff?text=Sin+Imagen';
+      }
+
+      if (imagePath.startsWith('http')) {
+        return imagePath;
+      }
+      return `http://localhost/sistema-restaurante-1/api/${imagePath}`;
+    },
+
+    handleImageError(event) {
+      event.target.src = 'https://via.placeholder.com/150x150/ff7b7b/ffffff?text=Sin+Imagen';
+    },
+    
+    async loadProducts() {
+      try {
+        const resultado = await HttpService.obtener("obtener_insumos.php");
+        this.allProducts = resultado;
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+        
+        // Datos de prueba para debug
+        this.allProducts = [
+          { id: 1, nombre: "Coca Cola 600Ml", precio: 25, tipo: "BEBIDA", imagen: "" },
+          { id: 2, nombre: "Agua Ciel 600ML", precio: 15, tipo: "BEBIDA", imagen: "" },
+          { id: 3, nombre: "Hamburguesa Americana", precio: 80, tipo: "PLATILLO", imagen: "" },
+          { id: 4, nombre: "Pasta Mar y Tierra", precio: 95, tipo: "PLATILLO", imagen: "" }
+        ];
+      }
+    },
+
+    addToOrder(product) {
+      const existingItem = this.insumosOrden.find(item => item.id === product.id);
+
+      if (existingItem) {
+        existingItem.cantidad++;
+      } else {
+        this.insumosOrden.push({
+          id: product.id,
+          codigo: product.codigo,
+          nombre: product.nombre,
+          precio: product.precio,
+          caracteristicas: "",
+          cantidad: 1,
+          estado: "pendiente",
+          tipo: product.tipo
+        });
+      }
+
       this.calcularTotal();
     },
 
-    async editarOrden() {
-      if (this.insumosOrden.length === 0) {
-        this.$buefy.toast.open({
-          message: "Agrega al menos un insumo",
-          type: "is-warning"
-        });
-        return;
-      }
+    increaseQuantity(item) {
+      item.cantidad++;
+      this.calcularTotal();
+    },
 
-      let payload = {
-        id: this.idMesa,
-        insumos: [...this.insumosAnteriores, ...this.insumosOrden],
-        total: this.total,
-        atiende: localStorage.getItem("nombreUsuario"),
-        idUsuario: localStorage.getItem("idUsuario"),
-        cliente: this.cliente,
-      };
-
-      try {
-        const resultado = await HttpService.registrar(payload, "editar_mesa.php");
-        if (resultado) {
-          this.mostrarNotificacion("Insumos agregados correctamente", "is-success");
-          this.$router.push({ name: "RealizarOrden" });
-        }
-      } catch (error) {
-        this.mostrarNotificacion("Error al agregar insumos", "is-danger");
+    decreaseQuantity(item) {
+      if (item.cantidad > 1) {
+        item.cantidad--;
+      } else {
+        this.removeItem(item);
       }
+      this.calcularTotal();
+    },
+
+    removeItem(item) {
+      this.insumosOrden = this.insumosOrden.filter(i => i.id !== item.id);
+      this.calcularTotal();
+    },
+
+    calcularTotal() {
+      const totalAnterior = this.insumosAnteriores.reduce((sum, insumo) => {
+        return sum + (parseFloat(insumo.cantidad) * parseFloat(insumo.precio));
+      }, 0);
+
+      const totalNuevo = this.insumosOrden.reduce((sum, insumo) => {
+        return sum + (parseFloat(insumo.cantidad) * parseFloat(insumo.precio));
+      }, 0);
+
+      this.total = totalAnterior + totalNuevo;
     },
 
     async realizarOrden() {
@@ -175,225 +277,272 @@ export default {
       }
     },
 
-    eliminar(idInsumo) {
-      this.insumosOrden = this.insumosOrden.filter(item => item.id !== idInsumo);
-      this.calcularTotal();
-    },
-
-    calcularTotal() {
-      const totalAnterior = this.insumosAnteriores.reduce((sum, insumo) => {
-        return sum + (parseFloat(insumo.cantidad) * parseFloat(insumo.precio));
-      }, 0);
-
-      const totalNuevo = this.insumosOrden.reduce((sum, insumo) => {
-        return sum + (parseFloat(insumo.cantidad) * parseFloat(insumo.precio));
-      }, 0);
-
-      this.total = totalAnterior + totalNuevo;
-    },
-
-    buscarInsumo() {
-      if (this.nombre) {
-        HttpService.obtenerConDatos(
-          this.nombre,
-          "obtener_insumo_nombre.php"
-        ).then((resultado) => {
-          this.insumos = resultado;
+    async editarOrden() {
+      if (this.insumosOrden.length === 0) {
+        this.$buefy.toast.open({
+          message: "Agrega al menos un insumo",
+          type: "is-warning"
         });
-      }
-    },
-
-    agregarInsumoAOrden(insumo) {
-      if (!insumo) return;
-
-      const indice = this.insumosOrden.findIndex(item => item.id === insumo.id);
-
-      if (indice >= 0) {
-        this.insumosOrden[indice].cantidad++;
-      } else {
-        this.insumosOrden.push({
-          id: insumo.id,
-          codigo: insumo.codigo,
-          nombre: insumo.nombre,
-          precio: insumo.precio,
-          caracteristicas: "",
-          cantidad: 1,
-          estado: "pendiente",
-          tipo: insumo.tipo
-        });
+        return;
       }
 
-      this.nombre = "";
-      this.calcularTotal();
-      this.$nextTick(() => {
-        if (this.$refs.searchInput) {
-          this.$refs.searchInput.focus();
+      let payload = {
+        id: this.idMesa,
+        insumos: [...this.insumosAnteriores, ...this.insumosOrden],
+        total: this.total,
+        atiende: localStorage.getItem("nombreUsuario"),
+        idUsuario: localStorage.getItem("idUsuario"),
+        cliente: this.cliente,
+      };
+
+      try {
+        const resultado = await HttpService.registrar(payload, "editar_mesa.php");
+        if (resultado) {
+          this.mostrarNotificacion("Insumos agregados correctamente", "is-success");
+          this.$router.push({ name: "RealizarOrden" });
         }
-      });
+      } catch (error) {
+        this.mostrarNotificacion("Error al agregar insumos", "is-danger");
+      }
     },
 
     mostrarNotificacion(mensaje, tipo) {
       this.$buefy.toast.open({
         message: mensaje,
         type: tipo,
-        position: "is-bottom-right",
+        position: "is-bottom",
         duration: 3000
       });
     }
-  },
-
-  computed: {
-    filteredDataObj() {
-      return this.insumos.filter(option =>
-        option.nombre.toLowerCase().includes(this.nombre.toLowerCase())
-      );
-    },
-  },
+  }
 };
 </script>
 
 <style scoped>
-.order-container {
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  padding: 1.5rem;
+.touch-order-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.order-card {
-  background-color: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+.products-panel {
+  flex: 1;
+  background: #f5f5f5;
+  padding: 1rem;
+  overflow-y: auto;
+  border-right: 1px solid #ddd;
+}
+
+.categories-header {
+  margin-bottom: 1rem;
+}
+
+.categories-tabs {
+  display: flex;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.category-tab {
+  flex: 0 0 auto;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.category-tab.is-active {
+  background: #ffc457;
+  color: white;
+  border-color: #faaa15;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.product-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+  width: 132px;
+  height: 132px;
+  margin-bottom: 0.5rem;
+  color: #7a7a7a;
+}
+
+
+.product-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  color: #363636;
+}
+
+.product-price {
+  color: #bb7533;
+  font-weight: bold;
+}
+
+.order-panel {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
 }
 
 .order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dbdbdb;
 }
 
-.order-title {
+.order-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.order-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #363636;
+}
+
+.order-item {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.item-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #2b413e;
+}
+
+.item-price {
+  font-weight: bold;
+  color: #f5a004;
+}
+
+.item-controls {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.quantity-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #dbdbdb;
+  background: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.25rem;
+}
+
+.quantity {
+  color: #363636;
+  margin: 0 0.5rem;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.remove-btn {
+  margin-left: 0.5rem;
+  color: #ff3860;
+  background: none;
+  border: none;
+}
+
+.empty-order {
+  text-align: center;
+  padding: 2rem;
+  color: #7a7a7a;
 }
 
 .order-summary {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #dbdbdb;
 }
 
 .total-display {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: bold;
 }
 
 .total-label {
-  font-size: 1.2rem;
-  color: #4a4a4a;
-}
-
-.total-amount {
-  font-size: 3.5rem;
-  font-weight: bold;
-  color: #48c774;
-}
-
-.client-field {
-  min-width: 300px;
-}
-
-.search-container {
-  margin: 2rem 0;
-}
-
-.search-field {
-  width: 100%;
-}
-
-.search-input {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.action-buttons {
-  margin: 2rem 0;
-  display: flex;
-  justify-content: center;
-}
-
-.order-button,
-.add-button {
-  font-weight: 600;
-  padding: 0 2.5rem;
-  transition: all 0.3s ease;
-}
-
-.order-button:hover,
-.add-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.products-container {
-  margin-top: 2rem;
-}
-
-.products-section {
-  margin-bottom: 2.5rem;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
   color: #363636;
 }
 
-.empty-state {
+.total-amount {
+  color: #dc3232;
+}
+
+.action-buttons {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  background-color: #f9f9f9;
+  gap: 0.75rem;
+}
+
+.button {
   border-radius: 8px;
-  text-align: center;
-}
-
-.empty-text {
-  margin-top: 1rem;
+  height: 3.5rem;
   font-size: 1.1rem;
-  color: #7a7a7a;
+  font-weight: 600;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-  .order-header {
+  .touch-order-container {
     flex-direction: column;
-    gap: 1.5rem;
   }
 
-  .order-summary {
-    align-items: stretch;
+  .order-panel {
     width: 100%;
+    height: 50vh;
   }
 
-  .client-field {
-    min-width: auto;
-  }
-
-  .total-display {
-    justify-content: space-between;
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
 </style>
